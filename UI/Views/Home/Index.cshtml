@@ -1,0 +1,74 @@
+﻿@model List<UI.Models.Product>
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start Product Area -->
+<div class="product-area section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="product-info">
+                    <!-- Start Single Tab -->
+                    <div class="tab-single">
+                        <div class="row">
+                            @{
+                                foreach (var product in Model)
+                                {
+                                    <div class="col-xl-3 col-lg-4 col-md-4 col-12">
+                                        <div class="single-product">
+                                            <div class="product-img">
+                                                <a href="product-details.html">
+                                                    <img class="default-img" src="@Url.Content(product.ImageUrl1)" alt="#">
+                                                    <img class="hover-img" src="@Url.Content(product.ImageUrl2)" alt="#">
+                                                </a>
+                                                <div class="button-head">
+                                                    <div class="product-action">
+                                                        <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
+                                                        <a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
+                                                        <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
+                                                    </div>
+                                                    <div class="product-action-2">
+                                                        <a title="Add to cart" href="#" onclick="addToCart(@product.Id, '@product.Name', @product.Price, 1)">Add to cart</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <h3><a href="product-details.html">@product.Name</a></h3>
+                                                <div class="product-price">
+                                                    <span>$@product.Price</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <!--/ End Single Tab -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Product Area -->
+
+@section Scripts{
+    <script type="text/javascript">
+        function addToCart(id, name, price, quantity) {
+            var itemAmount = price * quantity * 1;
+            var totalCount = 0;
+            var totalAmount = 0;
+            var cartCount = window.localStorage.getItem("cartCount");
+            var cartAmount = window.localStorage.getItem("cartAmount");
+
+            totalCount = (cartCount === "null") || (cartCount === "undefined") || (cartCount === null) ? quantity : parseInt(cartCount) + quantity;
+            totalAmount = (cartAmount === "null") || (cartAmount === "undefined") || (cartAmount === null) ? itemAmount : parseInt(cartAmount) + itemAmount;
+
+            var cartCountElem = document.getElementById('cartCount').innerHTML = totalCount;
+            window.localStorage.setItem("cartCount", JSON.stringify(totalCount));
+            window.localStorage.setItem("cartAmount", JSON.stringify(totalAmount));
+        };
+    </script>
+}

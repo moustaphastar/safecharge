@@ -1,0 +1,68 @@
+﻿@using UI.Models
+@model LoginViewModel
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <title>E-shop | Sign in</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/css/font-awesome.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/css/font.css" type="text/css" />
+    <link rel="stylesheet" href="~/Content/css/app.css" type="text/css" />
+    <!--[if lt IE 9]>
+      <script src="js/ie/html5shiv.js"></script>
+      <script src="js/ie/respond.min.js"></script>
+      <script src="js/ie/excanvas.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div id="content" class="m-5">
+        <div class="container aside-xxl">
+            <div class="col-12 text-center"><a href="/"><img src="~/Content/images/logo.png" /></a></div>
+            <div class="panel bg-white m-t-lg animated fadeInUp">
+                @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "panel-body wrapper-lg" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group">
+                        <label class="control-label">E-mail</label>
+                        @Html.TextBoxFor(m => m.Email, new { type = "email", placeholder = "username@example.com", @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Password</label>
+                        <a href="ForgotPassword" class="pull-right m-t-xs"><small>Forgot password?</small></a>
+                        @Html.TextBoxFor(m => m.Password, new { type = "password", id = "inputPassword", placeholder = "*****", @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="checkbox">
+                        @Html.CheckBoxFor(m => m.RememberMe) Remember me
+                    </div>
+
+                    <div class="form-group center-block"><button type="submit" class="btn btn-primary">Sign me in</button></div>
+
+                    
+                    <hr />
+                    <div class="text-center">
+                        <span class="text-muted">Don't have an account?<a href="Register">&nbsp;Register</a></span>
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/js/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="~/Scripts/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/js/popper.min.js"></script>
+</body>
+</html>
