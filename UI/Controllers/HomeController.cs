@@ -26,22 +26,25 @@ namespace UI.Controllers
             return View(products);
         }
 
-        public ActionResult Contact()
+        public ActionResult Cart()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
         [HttpGet]
-        public ActionResult Checkout()
+        public ActionResult Checkout(string amount)
         {
+            bool parseAmount = decimal.TryParse(amount, out decimal _amount);
+            if (parseAmount != true)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
             OpenOrderModel openOrderModel = new OpenOrderModel()
             {
                 MerchantId = MERCHANT_ID,
                 MerchantSiteId = MERCHANT_SITE_ID,
                 Currency = CURRENCY,
-                Amount = "20",
+                Amount = amount,
                 TimeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss")
             };
 

@@ -1,0 +1,75 @@
+﻿@model UI.SafeChargeModel.OpenOrderResultModel
+@{
+    ViewBag.Title = "Cart Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 m-sm-auto">
+                <div class="order-details">
+                    <!-- Order Widget -->
+                    <div class="single-widget">
+                        <h2>Cart Details</h2>
+                        <div class="content">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content">
+                            <div class="button">
+                                <button id="payoutButton" onclick="navigateToCheckOut();" class="btn btn-default">Proceed to checkout</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script>
+        function navigateToCheckOut() {
+            var totalAmount = window.localStorage.getItem("cartAmount");
+            var checkoutAmount = (totalAmount === "null") || (totalAmount === "undefined") || (totalAmount === null) ? 0 : parseInt(totalAmount) * 1;
+
+            window.location.href = "/Home/Checkout?amount=" + checkoutAmount.toFixed(2).toString();
+        };
+
+        $(document).ready(function () {
+            var retrievedObject = JSON.parse(localStorage.getItem('cartCount'));
+
+            var tbody = document.getElementById('tbody');
+
+            for (var i = 1; i <= retrievedObject; i++) {
+                var item = JSON.parse(localStorage.getItem(i));
+                var tr = "<tr><td>" + i + "</td>" + "<td>" + item.name + "</td>" + "<td>" + item.quantity + "</td>" + "<td>$" + (item.quantity * item.price * 1).toFixed(2) + "</td></tr>";
+                tbody.innerHTML += tr;
+            }
+
+            var cartCount = window.localStorage.getItem("cartCount");
+            totalCount = (cartCount === "null") || (cartCount === "undefined") || (cartCount === null) ? 0 : parseInt(cartCount);
+
+            var cartCountElem = document.getElementById('cartCount').innerHTML = totalCount;
+        });
+    </script>
+}

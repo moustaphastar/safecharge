@@ -57,6 +57,10 @@
 @section Scripts{
     <script type="text/javascript">
         function addToCart(id, name, price, quantity) {
+
+            var item = { name: name, price: price, quantity: quantity, total: quantity * price * 1 };
+            window.localStorage.setItem(id, JSON.stringify(item));
+
             var itemAmount = price * quantity * 1;
             var totalCount = 0;
             var totalAmount = 0;

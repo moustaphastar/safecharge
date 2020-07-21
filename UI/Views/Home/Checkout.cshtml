@@ -166,12 +166,15 @@
                     //"lastName": "Smith",
                     //"address": "340689 main St.",
                     //"city": "London",
-                    //"country": "GB",    <------------------------ NOT SENT TO API ENDPOINT BUT RECEIVED APPROVED RESULT !!!
+                    "country": "GB",   // <------------------------ NOT SENT TO API ENDPOINT BUT RECEIVED APPROVED RESULT !!!
                     "email": "john.smith@safecharge.com"
                 }
             }, function (res) {
                     $.get('/Home/GetPaymentStatus', { sessionToken: '@Model.SessionToken' }, function (data, textStatus) {
                         alert(data);
+                        if (textStatus === "success") {
+                            window.location.href = "/Home";
+                        }
                         console.log('got %o with status %s', data, textStatus);
                     }, "json"); // or xml, html, script, json, jsonp or text
                 console.log(res)
@@ -181,9 +184,9 @@
     <script>
         $(document).ready(function () {
             var totalAmount = window.localStorage.getItem("cartAmount");
-            var checoutAmount = (totalAmount === "null") || (totalAmount === "undefined") || (totalAmount === null) ? 0 : parseInt(totalAmount) * 1;
+            var checkoutAmount = (totalAmount === "null") || (totalAmount === "undefined") || (totalAmount === null) ? 0 : parseInt(totalAmount) * 1;
 
-            var checkoutTotal = document.getElementById('checkoutTotal').innerHTML = checoutAmount.toFixed(2);
+            var checkoutTotal = document.getElementById('checkoutTotal').innerHTML = checkoutAmount.toFixed(2);
             console.log(checkoutTotal);
 
 
