@@ -118,6 +118,17 @@ namespace UI.Controllers
             return Json(status, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public ActionResult Dmn()
+        {
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        [HttpPost]
+        public ActionResult Dmn(string advanceResponseChecksum)
+        {
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
 
         private List<Product> GetProducts()
         {
