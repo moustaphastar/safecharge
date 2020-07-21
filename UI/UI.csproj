@@ -206,7 +206,6 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Product.cs" />
-    <Compile Include="Models\TransactionResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeChargeModel\CheckSummer.cs" />
     <Compile Include="SafeChargeModel\GetPaymentStatusResultModel.cs" />
@@ -409,7 +408,6 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Checkout.cshtml" />
-    <Content Include="Views\Home\_CheckPayment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
