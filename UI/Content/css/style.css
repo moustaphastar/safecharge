@@ -3383,7 +3383,7 @@ Version:1.0
 }
 .shop.checkout .single-widget.get-button .btn {
 	height: 46px;
-	width: 100%;
+	/*width: 100%;*/
 	line-height: 19px;
 	text-align: center;
 	border-radius: 0;

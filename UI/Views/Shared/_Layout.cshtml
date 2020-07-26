@@ -16,33 +16,15 @@
     <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/safecharge.js"></script>
 
     <!-- StyleSheet -->
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="~/Content/css/bootstrap.css">
-    <!-- Magnific Popup -->
-    <link rel="stylesheet" href="~/Content/css/magnific-popup.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="~/Content/css/font-awesome.css">
-    <!-- Fancybox -->
-    <link rel="stylesheet" href="~/Content/css/jquery.fancybox.min.css">
-    <!-- Themify Icons -->
-    <link rel="stylesheet" href="~/Content/css/themify-icons.css">
-    <!-- Jquery Ui -->
-    <link rel="stylesheet" href="~/Content/css/jquery-ui.css">
-    <!-- Nice Select CSS -->
-    <link rel="stylesheet" href="~/Content/css/niceselect.css">
-    <!-- Animate CSS -->
-    <link rel="stylesheet" href="~/Content/css/animate.css">
-    <!-- Flex Slider CSS -->
-    <link rel="stylesheet" href="~/Content/css/flex-slider.min.css">
-    <!-- Owl Carousel -->
-    <link rel="stylesheet" href="~/Content/css/owl-carousel.css">
-    <!-- Slicknav -->
-    <link rel="stylesheet" href="~/Content/css/slicknav.min.css">
-
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/Content/css/bootstrap.css">
     <!-- Eshop StyleSheet -->
     <link rel="stylesheet" href="~/Content/css/reset.css">
     <link rel="stylesheet" href="~/Content/css/style.css">
     <link rel="stylesheet" href="~/Content/css/responsive.css">
+
     @Scripts.Render("~/bundles/modernizr")
 
 
@@ -61,8 +43,14 @@
                 @*<a class="nav-item nav-link" href="/Home/Checkout">Checkout</a>*@
             </div>
         </div>
-        <div class="bottom">
-            <a href="/Home/Checkout" class="single-icon"><i class="ti-bag"></i> <span id="cartCount" class="total-count">0</span></a>
+        <div class="bottom" style="display: block ruby">
+            <a href="/Home/Cart"><i class="fa fa-shopping-basket"></i><span id="cartCount" class="badge badge-pill badge-success">0</span></a>
+            <div class="">
+                <select class="" id="currencyList" onchange="setCurrency(this)">
+                    <option value="USD">USD</option>
+                    <option selected value="EUR">EUR</option>
+                </select>
+            </div>
         </div>
     </nav>
     <!--/ End Header -->
@@ -72,50 +60,17 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <!-- Jquery -->
-    <script src="~/Scripts/js/jquery.min.js"></script>
-    <script src="~/Scripts/js/jquery-migrate-3.0.0.js"></script>
-    <script src="~/Scripts/js/jquery-ui.min.js"></script>
-    <!-- Popper JS -->
-    <script src="~/Scripts/js/popper.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="~/Scripts/js/bootstrap.min.js"></script>
-    <!-- Color JS -->
-    <script src="~/Scripts/js/colors.js"></script>
-    <!-- Slicknav JS -->
-    <script src="~/Scripts/js/slicknav.min.js"></script>
-    <!-- Owl Carousel JS -->
-    <script src="~/Scripts/js/owl-carousel.js"></script>
-    <!-- Magnific Popup JS -->
-    <script src="~/Scripts/js/magnific-popup.js"></script>
-    <!-- Fancybox JS -->
-    <script src="~/Scripts/js/facnybox.min.js"></script>
-    <!-- Waypoints JS -->
-    <script src="~/Scripts/js/waypoints.min.js"></script>
-    <!-- Countdown JS -->
-    <script src="~/Scripts/js/finalcountdown.min.js"></script>
-    <!-- Nice Select JS -->
-    <script src="~/Scripts/js/nicesellect.js"></script>
-    <!-- Ytplayer JS -->
-    <script src="~/Scripts/js/ytplayer.min.js"></script>
-    <!-- Flex Slider JS -->
-    <script src="~/Scripts/js/flex-slider.js"></script>
-    <!-- ScrollUp JS -->
-    <script src="~/Scripts/js/scrollup.js"></script>
-    <!-- Onepage Nav JS -->
-    <script src="~/Scripts/js/onepage-nav.min.js"></script>
-    <!-- Easing JS -->
-    <script src="~/Scripts/js/easing.js"></script>
-    <!-- Active JS -->
-    <script src="~/Scripts/js/active.js"></script>
-    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/safecharge.js"></script>
+    <script src="~/Scripts/eshopcart.js"></script>
     <script>
         $(document).ready(function () {
-            var cartCount = window.localStorage.getItem("cartCount");
+            let cart = getObjectFromLocalStorage("cart");
+            let count = cart === null ? 0 : cart.length;
+            document.getElementById('cartCount').innerHTML = count;
 
-            totalCount = (cartCount === "null") || (cartCount === "undefined") || (cartCount === null) ? 0 : parseInt(cartCount);
-
-            var cartCountElem = document.getElementById('cartCount').innerHTML = totalCount;
+            let currency = getObjectFromLocalStorage("currency");
+            if (currency === null) {
+                setCurrency("USD");
+            }
         });
     </script>
     @RenderSection("scripts", required: false)

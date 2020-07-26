@@ -53,26 +53,3 @@
     </div>
 </div>
 <!-- End Product Area -->
-
-@section Scripts{
-    <script type="text/javascript">
-        function addToCart(id, name, price, quantity) {
-
-            var item = { name: name, price: price, quantity: quantity, total: quantity * price * 1 };
-            window.localStorage.setItem(id, JSON.stringify(item));
-
-            var itemAmount = price * quantity * 1;
-            var totalCount = 0;
-            var totalAmount = 0;
-            var cartCount = window.localStorage.getItem("cartCount");
-            var cartAmount = window.localStorage.getItem("cartAmount");
-
-            totalCount = (cartCount === "null") || (cartCount === "undefined") || (cartCount === null) ? quantity : parseInt(cartCount) + quantity;
-            totalAmount = (cartAmount === "null") || (cartAmount === "undefined") || (cartAmount === null) ? itemAmount : parseInt(cartAmount) + itemAmount;
-
-            var cartCountElem = document.getElementById('cartCount').innerHTML = totalCount;
-            window.localStorage.setItem("cartCount", JSON.stringify(totalCount));
-            window.localStorage.setItem("cartAmount", JSON.stringify(totalAmount));
-        };
-    </script>
-}
