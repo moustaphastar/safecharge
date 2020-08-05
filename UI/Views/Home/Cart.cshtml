@@ -4,6 +4,22 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .btn-update-cart {
+        width: 10px;
+        background-color: red;
+        margin: .25rem !important;
+    }
+
+    .vertical-align-none td{
+        vertical-align:middle !important;
+    }
+
+    .cart-table-footer td {
+        text-align:right !important;
+        font-weight:bold !important;
+    }
+</style>
 
 <!-- Start Checkout -->
 <section class="shop checkout section">
@@ -15,7 +31,7 @@
                     <div class="single-widget">
                         <h2>Cart Details</h2>
                         <div class="content">
-                            <table class="table">
+                            <table class="table vertical-align-none">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -35,11 +51,14 @@
                     <div class="single-widget get-button">
                         <div class="content d-flex" style="justify-content: space-around;">
                             <div class="button">
-                                <button id="checkoutButton" onclick="navigateToCheckout();" class="btn btn-default">Checkout</button>
+                                <button id="checkoutButton" onclick="navigateToCheckout();" class="btn btn-default">Checkout with CheckoutPage</button>
+                            </div>
+                            @*<div class="button">
+                                <button id="checkoutWithSDKButton" onclick="navigateToCheckoutWithSDK();" class="btn btn-default">Checkout with WebSDK</button>
                             </div>
                             <div class="button">
-                                <button id="checkoutWithSDKButton" onclick="navigateToCheckoutWithSDK();" class="btn btn-default">Checkout WebSDK</button>
-                            </div>
+                                <button id="checkout3dButton" onclick="navigateToCheckoutWith3d();" class="btn btn-default">Checkout with 3D</button>
+                            </div>*@
                         </div>
                     </div>
                     <!--/ End Button Widget -->
@@ -53,5 +72,6 @@
 @section Scripts{
     <script>
         populateCartTable();
+        //InitializeCart()
     </script>
 }

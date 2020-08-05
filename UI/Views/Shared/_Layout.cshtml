@@ -31,7 +31,7 @@
 </head>
 <body class="js">
     <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light">
         <a class="navbar-brand" href="/">Navbar</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -55,7 +55,9 @@
     </nav>
     <!--/ End Header -->
     <!-- Page Content -->
-    @RenderBody()
+    <div class="mt-3">
+        @RenderBody()
+    </div>
     <!--/ End Page Content -->
 
     @Scripts.Render("~/bundles/jquery")

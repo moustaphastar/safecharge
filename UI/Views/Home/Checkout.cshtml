@@ -1,9 +1,13 @@
 ﻿@model UI.SafeChargeModels.CheckoutViewModel
 @{
     ViewBag.Title = "SafeCharge Checkout Page";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
     Layout = null;
     string apiUrl = "https://ppp-test.safecharge.com/ppp/purchase.do";
-    string notifyUrl = "https%3A%2F%2Fsandbox.safecharge.com%2Flib%2Fdemo_process_request%2Fresponse.php";
+    string successUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
+    string pendingUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
+    string errorUrl = "https://ppp-test.safecharge.com/ppp/defaultCancel.do";
+    string notifyUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
     string userTokenId = Model.UserTokenId;
     string itemList = "";
     int count = Model.Items.Count;
@@ -13,14 +17,12 @@
         var item = Model.Items[i];
         var n = i + 1;
         string item_name_n = string.Concat("item_name_", n, "=", item.Name);
-        string item_number_n = string.Concat("item_number_", n, "=", n);
+        string item_amount_n = string.Concat("item_amount_", n, "=", item.Price);
         string item_quantity_n = string.Concat("item_quantity_", n, "=", item.Quantity);
-        string item_amount_n = string.Concat("item_amount_", n, "=", item.Total);
-        itemList += string.Concat(item_name_n, "&" + item_number_n + "&" + item_quantity_n + "&" + item_amount_n);
-        if (n < count)
-        {
-            itemList += "&";
-        }
+
+        //itemList += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
+        itemList += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
+        if (n < count) { itemList += "&"; }
     }
 }
 
@@ -43,21 +45,9 @@
     <iframe name="safeChargeIframe"
             style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"
             scrolling="auto"
-            src="@apiUrl
-            ?currency=@Model.Currency
-            &@itemList
-            &numberofitems=@Model.Items.Count.ToString()
-            &encoding=utf-8
-            &merchant_id=@Model.MerchantId
-            &merchant_site_id=@Model.MerchantSiteId
-            &time_stamp=@Model.TimeStamp
-            &version=@Model.Version
-            &user_token_id=@userTokenId
-            &total_amount=@Model.Amount
-            &notify_url=@notifyUrl
-            &theme_id=178113
-            &checksum=@Model.Checksum">
+            src="https://ppp-test.safecharge.com/ppp/purchase.do?merchant_id=@Model.MerchantId&merchant_site_id=@Model.MerchantSiteId&version=4.0.0&user_token_id=c433b5a9-bf3f&numberofitems=@Model.Items.Count.ToString()&total_tax=0&discount=0&shipping=0&handling=0&currency=@Model.Currency&@itemList&total_amount=@Model.Amount&first_name=&address1=&payment_method=cc_card&last_name=&city=&merchantLocale=en_US&phone1=&zip=&email=sfchargeapp9@gmail.com&country=CA&notify_url=@notifyUrl&success_url=@notifyUrl&error_url=@errorUrl&pending_url=@pendingUrl&time_stamp=@Model.TimeStamp&checksum=@Model.Checksum">
     </iframe>
     <!--/ End SafeCharge IFrame -->
+    @Scripts.Render("~/bundles/jquery")
 </body>
 </html>

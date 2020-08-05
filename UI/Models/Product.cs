@@ -6,6 +6,6 @@
         public string Name { get; set; }
         public string ImageUrl1 { get; set; }
         public string ImageUrl2 { get; set; }
-        public decimal Price { get; set; }
+        public string Price { get; set; }
     }
 }
