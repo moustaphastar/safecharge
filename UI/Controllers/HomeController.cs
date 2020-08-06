@@ -7,16 +7,15 @@ using System.Web.Mvc;
 using UI.Helpers;
 using UI.Models;
 using UI.SafeChargeModels;
-//using Newtonsoft.Json;
 
 namespace UI.Controllers
 {
     public class HomeController : Controller
     {
         #region Fields
-        private const string SECRET = "8NcFYQjN5HlURMSdVef9rInFMWJRsfzr1ljw2Z8Jx7zv3AvcUwYPmXLWa9td5mt8"; //"XlfztkmqgLcGeW3brWNlpwne3u6YyXPpb3IUpLyo2pK7q1SzHWiRoRNCXJRoFaNv"; //"ClaKwuxG7LnJpUpcJJMdSXRHyYzxskzYNRCZZOiHdpYeyPvMlDirRgxObmLUk8EP";
-        private const string MERCHANT_ID = "8813977768255734154"; //"5305553900704185318"; //"6137988932968921795";
-        private const string MERCHANT_SITE_ID = "205848"; //"205838"; //"203978";
+        private const string SECRET = "8NcFYQjN5HlURMSdVef9rInFMWJRsfzr1ljw2Z8Jx7zv3AvcUwYPmXLWa9td5mt8";
+        private const string MERCHANT_ID = "8813977768255734154";
+        private const string MERCHANT_SITE_ID = "205848";
         private const string CLIENT_UNIQUE_ID = "203978";
         private const string User_Token_Id = "c433b5a9-bf3f";
         private readonly List<string> ALLOWED_CURRENCIES = new List<string> { "USD", "EUR" };
@@ -43,242 +42,87 @@ namespace UI.Controllers
         }
 
         [HttpGet]
-        public ActionResult Checkout(string amount, string currency, string cartItems)
+        public ActionResult Checkout(string amount, string currency)
         {
             bool parseAmount = decimal.TryParse(amount, out decimal _amount);
-            currency = currency.ToUpper();
-            //if (parseAmount != true || ALLOWED_CURRENCIES.Contains(currency.ToUpper()))//.Contains(currency.ToUpper()))
-            //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            //}
-            string timeStamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"); // "2020-08-05 01:55:33"
-
-            // Prepare view model.
-            CheckoutViewModel model = new CheckoutViewModel()
-            {
-                Amount = amount,
-                Checksum = "",
-                Currency = currency,
-                ItemListString = "",
-                Items = JsonSerializer.Deserialize<List<CartItem>>(cartItems, JsonSerializerOptions),
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                TimeStamp = timeStamp,
-                UserTokenId = User_Token_Id,
-                Version = "4.0.0", // TODO: Bug: Host returns 1.0.0 which fails processing.
-            };
-
-            // Produce view model's checksum.
-            model.Items.ForEach(x => model.ItemListString += string.Concat(x.Name, x.Price, x.Quantity));
-            string str = string.Concat(SECRET,
-                MERCHANT_ID,
-                MERCHANT_SITE_ID,
-                model.Version,
-                User_Token_Id,
-                model.Items.Count,
-                "0000", // For simplicity no extra fee is used
-                currency,
-                model.ItemListString,
-                amount,
-                "cc_card", // payment method
-                "en_US", // merchant locale
-                "sfchargeapp9@gmail.com", //email
-                "CA", // country code
-                "https://sandbox.safecharge.com/lib/demo_process_request/response.php", //notify
-                "https://sandbox.safecharge.com/lib/demo_process_request/response.php", //success
-                "https://ppp-test.safecharge.com/ppp/defaultCancel.do", //error
-                "https://sandbox.safecharge.com/lib/demo_process_request/response.php", //notify
-                timeStamp);
-            model.Checksum = GetChecksumSha256(str);
-            return View(model);
-        }
-
-        [HttpGet]
-        public ActionResult CheckoutWithSDK(string amount, string currency, bool threeD = false)
-        {
-            bool parseAmount = decimal.TryParse(amount, out decimal _amount);
-            bool currencyAllowed = ALLOWED_CURRENCIES.Contains(currency.ToUpper());
-            //if (parseAmount != true || currencyAllowed != true)
-            //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            //}
-
             string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            OpenOrderResponse sessionTokenInfo = GetSessionToken(timeStamp);
 
-            // Prepare model for openOrder() api request. // TODO: Bug? : ClientUniqueId null is accepted.
-            OpenOrderRequest openOrderModel = new OpenOrderRequest()
+            if (sessionTokenInfo == null)
             {
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                Currency = currency.ToUpper(),
-                Amount = amount,
-                TimeStamp = timeStamp,
-                Checksum = GetChecksumSha256(string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency.ToUpper(), timeStamp, SECRET))
-            };
-
-            // Send a request to openOrder() api call to open a session.
-            string openOrderModelJson = JsonSerializer.Serialize(openOrderModel, JsonSerializerOptions);
-            string openOrderResponse = GetResponseFromHost(openOrderModelJson, API_OPEN_ORDER);
-
-            // If response null, return service unavailable result.
-            if (openOrderResponse == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.ServiceUnavailable);
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
 
-            // Deserialize openOrder() api response.
-            OpenOrderResponse openOrderResult = JsonSerializer.Deserialize<OpenOrderResponse>(openOrderResponse, JsonSerializerOptions);
-
-            // Raise error if openOrder() api response status value is ERROR.
-            if (openOrderResult.Status == "ERROR")
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            ViewBag.AuthorizedAmount = amount;
+            ViewBag.Amount = amount;
             ViewBag.Currency = currency.ToUpper();
-            if (threeD == true)
-            {
-                return View("Checkout3d", openOrderResult);
-            }
-            return View(openOrderResult);
-        }
+            ViewBag.TimeStamp = timeStamp;
+            ViewBag.Checksum = GetChecksumString(amount, currency, timeStamp);
 
-        public JsonResult Payment(string authenticate3dResult, string amount, string currency, string sessionToken,
-            string requestId, string uniqeId, string orderId, string cardholderName, string CVV, string cavv,
-            string exi, string cardnumber, string expmonth, string expyear, string data)
-        {
-            bool parseAmount = decimal.TryParse(amount, out decimal _amount);
-            //bool currencyAllowed = ALLOWED_CURRENCIES.Contains(currency.ToUpper());
-            //if (parseAmount != true || currencyAllowed != true)
-            //{
-            //    return Json("Error", JsonRequestBehavior.AllowGet);
-            //}
-
-            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
-            // Prepare model for openOrder() api request. // TODO: Bug? : ClientUniqueId null is accepted.
-            SessionTokenRequest sessionInfoToken = new SessionTokenRequest()
-            {
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                ClientRequestId = requestId,
-                TimeStamp = timeStamp,
-                Checksum = GetChecksumSha256(string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, requestId, timeStamp, SECRET))
-            };
-
-            // Send a request to openOrder() api call to open a session.
-            //string sessionInfoJson = JsonSerializer.Serialize(sessionInfoToken, JsonSerializerOptions);
-            //string openOrderResponse = GetResponseFromHost(sessionInfoJson, API_GET_SESSION_TOKEN);
-
-            //OpenOrderResponse sessionInfo = JsonSerializer.Deserialize<OpenOrderResponse>(openOrderResponse, JsonSerializerOptions);
-            //Authenticate3dResult authenticate3dInfo = JsonSerializer.Deserialize<Authenticate3dResult>(authenticate3dResult, JsonSerializerOptions);
-
-            //PaymentRequest request = new PaymentRequest
-            //{
-            //    Amount = amount,
-            //    ClientRequestId = sessionInfo.ClientRequestId,
-            //    ClientUniqueId = sessionInfo.ClientUniqueId,
-            //    Currency = currency,
-            //    MerchantId = MERCHANT_ID,
-            //    MerchantSiteId = MERCHANT_SITE_ID,
-            //    OrderId = sessionInfo.OrderId,
-            //    SessionToken = sessionInfo.SessionToken,
-            //    TimeStamp = timeStamp,
-            //    UserTokenId = sessionInfo.UserTokenId,
-            //};
-
-            //request.DeviceDetails = new DeviceDetails
-            //{
-            //    IpAddress = "93.146.254.172"
-            //};
-
-            //request.PaymentOptions = new PaymentOptions
-            //{
-            //    Card = new Cards
-            //    {
-            //        CardHolderName = cardholderName,
-            //        CVV = CVV,
-            //        CardNumber = "4000027891380961", //cardnumber,
-            //        ExpirationMonth = "12",//expmonth,
-            //        ExpirationYear = "22" //expyear,
-            //    }
-            //};
-
-            //request.BillingAddress = new BillingAddress
-            //{
-            //    Country = "GB",
-            //    Email = "john.smith@safecharge.com"
-            //};
-
-            //string str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency, request.TimeStamp, SECRET);
-            //request.Checksum = GetChecksumSha256(str);
-
-            //string paymentModelRequest = JsonSerializer.Serialize(request, JsonSerializerOptions);
-            //string paymentResponse = GetResponseFromHost(paymentModelRequest, API_PAYMENT);
-
-            string req = GetResponseFromHost(data, API_PAYMENT);
-
-            //if (paymentResponse == null)
-            //{
-            //    return Json("Error", JsonRequestBehavior.AllowGet);
-            //}
-
-            return Json("OK", JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public JsonResult GetPaymentStatus(string sessionToken)
-        {
-            try
-            {
-                string paymentStatusJson = JsonSerializer.Serialize(new PaymentStatusRequest() { SessionToken = sessionToken });
-                string paymentStatusResponse = GetResponseFromHost(API_GET_PAYMENT_STATUS, paymentStatusJson);
-
-                // If response null, return service unavailable result.
-                if (paymentStatusResponse == null)
-                {
-                    throw new Exception("Service Unavailable");
-                }
-
-                var paymentResult = JsonSerializer.Deserialize<PaymentStatusResponse>(paymentStatusResponse, JsonSerializerOptions);
-
-                return Json(paymentResult.Status, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return Json("Error", JsonRequestBehavior.AllowGet);
-            }
+            return View(sessionTokenInfo);
         }
 
         [HttpGet]
         public ActionResult Dmn()
         {
-            // TODO: DMN configuration is not allowed by sandbox currently.
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
 
         [HttpPost]
         public ActionResult Dmn(string advanceResponseChecksum)
         {
-            // TODO: DMN configuration is not allowed by sandbox currently.
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
         #endregion
 
-        [HttpGet]
-        public JsonResult GetChecksum(string amount, string currency)
+        #region Helpers
+        private OpenOrderResponse GetSessionToken(string timestamp)
         {
-            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency, timeStamp, SECRET);
+            var model = new OpenOrderRequest
+            {
+                MerchantId = MERCHANT_ID,
+                MerchantSiteId = MERCHANT_SITE_ID,
+                TimeStamp = timestamp
+            };
+
+            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, timestamp, SECRET);
             var checksum = GetChecksumSha256(str);
 
+            model.Checksum = checksum;
 
-            return Json(new { checksum, timeStamp }, JsonRequestBehavior.AllowGet);
+            var requestJson = JsonSerializer.Serialize(model, JsonSerializerOptions);
+            var resultJson = GetResponseFromHost(requestJson, API_GET_SESSION_TOKEN);
+            var result = JsonSerializer.Deserialize<OpenOrderResponse>(resultJson, JsonSerializerOptions);
+
+            return result;
         }
 
-        #region Helpers
+        private OpenOrderResponse OpenOrder(string currency, string amount, string timeStamp)
+        {
+            currency = currency.ToUpper();
+
+            OpenOrderRequest request = new OpenOrderRequest()
+            {
+                MerchantId = MERCHANT_ID,
+                MerchantSiteId = MERCHANT_SITE_ID,
+                ClientUniqueId = CLIENT_UNIQUE_ID,
+                Currency = currency.ToUpper(),
+                Amount = amount,
+                TimeStamp = timeStamp,
+                Checksum = GetChecksumSha256(GetChecksumString(amount, currency, timeStamp))
+            };
+
+            string requestJson = JsonSerializer.Serialize(request, JsonSerializerOptions);
+            string responseJson = GetResponseFromHost(requestJson, API_OPEN_ORDER);
+
+            if (responseJson == null)
+            {
+                return null;
+            }
+
+            OpenOrderResponse response = JsonSerializer.Deserialize<OpenOrderResponse>(responseJson, JsonSerializerOptions);
+            return response;
+        }
+
         private string GetResponseFromHost(string serializedData, string address)
         {
             try
@@ -323,14 +167,28 @@ namespace UI.Controllers
                 var n = i + 1;
                 string item_name_n = string.Concat("item_name_", n, "=", item.Name);
                 string item_amount_n = string.Concat("item_amount_", n, "=", item.Price);
-                //string item_number_n = string.Concat("item_number_", n, "=", n);
                 string item_quantity_n = string.Concat("item_quantity_", n, "=", item.Quantity);
                 composedString += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
-                //composedString += string.Concat(item_name_n, "&" + item_number_n + "&" + item_quantity_n + "&" + item_amount_n);
                 if (n < count) { composedString += "&"; }
             }
 
             return composedString;
+        }
+
+        public string GetChecksumString(string timestamp)
+        {
+            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, timestamp, SECRET);
+            var checksum = GetChecksumSha256(str);
+
+
+            return checksum;
+        }
+
+        private string GetChecksumString(string amount, string currency, string timeStamp)
+        {
+            string str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency, timeStamp, SECRET);
+            string checksumString = GetChecksumSha256(str);
+            return checksumString;
         }
 
         private string GetChecksumSha256(string text)
@@ -340,7 +198,6 @@ namespace UI.Controllers
             return checksum;
         }
 
-
         private static JsonSerializerOptions GetJsonSerializerOptions()
         {
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -349,7 +206,6 @@ namespace UI.Controllers
             options.Converters.Add(new BooleanToStringJsonConverter());
             return options;
         }
-
         #endregion
     }
 }
