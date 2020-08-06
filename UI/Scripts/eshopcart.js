@@ -124,51 +124,5 @@ function navigateToCheckoutWithSDK() {
     });
   }
 
-  window.location.href = "/Home/CheckoutWithSDK?amount=" + total.toFixed(2).toString() + "&currency=" + currency;
+  window.location.href = "/Home/Checkout?amount=" + total.toFixed(2).toString() + "&currency=" + currency;
 };
-
-function navigateToCheckoutWith3d() {
-  var cart = getObjectFromLocalStorage("cart");
-  var currency = getObjectFromLocalStorage("currency");
-  var total = 0;
-
-  if (cart === null) {
-    return;
-  } else {
-    cart.forEach(item => {
-      total += parseFloat(item.total);
-    });
-  }
-
-  window.location.href = "/Home/CheckoutWithSDK?amount=" + total.toFixed(2).toString() + "&currency=" + currency + "&threeD=" + true;
-};
-
-//function InitializeCart() {
-//  //const inputElement = document.querySelector('input.quantity');
-//  document.querySelectorAll('.quantity').forEach(item => {
-//    item.addEventListener('change', event => {
-//      let id = parseInt(event.target.getAttribute('data-id'));
-//      let name = parseInt(event.target.getAttribute('data-name'));
-//      let price = parseInt(event.target.getAttribute('data-price'));
-//      let quantity = parseInt(event.target.value);
-//      updateCart(id, name, price, quantity);
-//      console.log(id);
-//      console.log(quantity);
-//    })
-//  })
-
-//  //inputElement.addEventListener('change', (event) => {
-//  //  let id = event.target.getAttribute('data-id');
-//  //  let quantity = event.target.value;
-//  //  //updateCart(id, quantity);
-//  //  console.log(id);
-//  //  console.log(quantity);
-//  //  //const result = document.querySelector('.result');
-//  //  //result.textContent = `You like ${event.target.value}`;
-//  //});
-
-//  //document.querySelector('input.quantity').onchange = function () {
-//  //  console.log(this);
-//  //if (this.value < this.getAttribute('data-min')) this.value = this.getAttribute('data-min');
-
-//}

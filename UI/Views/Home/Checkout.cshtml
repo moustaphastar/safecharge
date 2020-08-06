@@ -1,53 +1,170 @@
-﻿@model UI.SafeChargeModels.CheckoutViewModel
+﻿@model UI.SafeChargeModels.OpenOrderResponse
 @{
-    ViewBag.Title = "SafeCharge Checkout Page";
-    //Layout = "~/Views/Shared/_Layout.cshtml";
-    Layout = null;
-    string apiUrl = "https://ppp-test.safecharge.com/ppp/purchase.do";
-    string successUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
-    string pendingUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
-    string errorUrl = "https://ppp-test.safecharge.com/ppp/defaultCancel.do";
-    string notifyUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
-    string userTokenId = Model.UserTokenId;
-    string itemList = "";
-    int count = Model.Items.Count;
-
-    for (int i = 0; i < count; i++)
-    {
-        var item = Model.Items[i];
-        var n = i + 1;
-        string item_name_n = string.Concat("item_name_", n, "=", item.Name);
-        string item_amount_n = string.Concat("item_amount_", n, "=", item.Price);
-        string item_quantity_n = string.Concat("item_quantity_", n, "=", item.Quantity);
-
-        //itemList += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
-        itemList += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
-        if (n < count) { itemList += "&"; }
-    }
+    ViewBag.Title = "Checkout Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en-us">
-<head>
-    <!-- Meta Tag -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name='copyright' content=''>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Title Tag  -->
-    <title>Eshop</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="~/Content/images/favicon.png">
-</head>
-<body>
-    <!-- SafeCharge IFrame -->
-    <iframe name="safeChargeIframe"
-            style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"
-            scrolling="auto"
-            src="https://ppp-test.safecharge.com/ppp/purchase.do?merchant_id=@Model.MerchantId&merchant_site_id=@Model.MerchantSiteId&version=4.0.0&user_token_id=c433b5a9-bf3f&numberofitems=@Model.Items.Count.ToString()&total_tax=0&discount=0&shipping=0&handling=0&currency=@Model.Currency&@itemList&total_amount=@Model.Amount&first_name=&address1=&payment_method=cc_card&last_name=&city=&merchantLocale=en_US&phone1=&zip=&email=sfchargeapp9@gmail.com&country=CA&notify_url=@notifyUrl&success_url=@notifyUrl&error_url=@errorUrl&pending_url=@pendingUrl&time_stamp=@Model.TimeStamp&checksum=@Model.Checksum">
-    </iframe>
-    <!--/ End SafeCharge IFrame -->
-    @Scripts.Render("~/bundles/jquery")
-</body>
-</html>
+<style>
+    .SfcFields {
+        background-color: #feff8c;
+        height: 42px;
+        padding: 10px 12px;
+        border-radius: 4px;
+        /*border: 1px solid transparent;*/
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        -webkit-transition: box-shadow 150ms ease;
+        transition: box-shadow 150ms ease;
+        min-height: 30px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 3px;
+    }
+
+    .sfc-empty {
+        background-color: #fecd58 !important;
+    }
+
+        .sfc-empty.sfc-focus {
+            box-shadow: 0 1px 3px 0 #cfd7df;
+            background-color: #fe8423 !important;
+        }
+
+    .sfc-focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+        background-color: #feb1c7 !important;
+    }
+
+    .sfc-complete {
+        background-color: #34fa29 !important;
+    }
+
+    .sfc-invalid {
+        border-color: #fa755a;
+    }
+
+    .SfcFields--webkit-autofill {
+        background-color: #fefde5 !important;
+    }
+</style>
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 m-sm-auto">
+                <div class="order-details">
+                    <!-- Order Widget -->
+                    <div class="single-widget">
+                        <h2>Checkout Details</h2>
+                        <div class="content">
+                            <ul>
+                                <li>Amount to pay<span id="checkoutTotal">$@String.Format("{0:c}", ViewBag.AuthorizedAmount)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--/ End Order Widget -->
+                    <!-- Payment Method Widget -->
+                    <div class="single-widget">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="cardHolderName">Card Holder Name</label>
+                                <input type="text" id="cardHolderName" class="col-12" placeholder="FL-BRW1" value="FL-BRW1" />
+                            </div>
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" class="col-12" placeholder="4000027891380961" value="4000027891380961" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expMonth">Expiry Month</label>
+                                <input type="text" id="expMonth" class="col-12" placeholder="12" value="12" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expYear">Expiry Year</label>
+                                <input type="text" id="expYear" class="col-12" placeholder="25" value="25" />
+                            </div>
+                            <div class="form-group">
+                                <label for="CVV">CVV</label>
+                                <input type="text" id="CVV" class="col-12" placeholder="217" value="217" />
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Payment Method Widget -->
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content">
+                            <div class="button">
+                                <button id="payoutButton" onclick="main();" class="btn btn-primary">Submit Payment</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+                <!-- Browser Fingerprinting Form -->
+                <form name="frm" method="POST" action={paymentOption.card.threeD.methodURL}>
+                    <input type="hidden" name="threeDSMethodData" value={paymentOption.card.threeD.methodPayload}>
+                </form>
+                <!--/ End Browser Fingerprinting Form -->
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/safecharge.js"></script>
+    <script>
+        function main() {
+            var cardholderName = document.getElementById('cardHolderName').value;
+            var cardNumber = document.getElementById('cardNumber').value;
+            var expMonth = document.getElementById('expMonth').value;
+            var expYear = document.getElementById('expYear').value;
+            var CVV = document.getElementById('CVV').value;
+            var amount = "@String.Format("{0:c}", ViewBag.AuthorizedAmount)";
+            var currency = "@ViewBag.Currency";
+            var timestamp = "@ViewBag.TimeStmap";
+            var checksum = "@ViewBag.Checksum"
+
+            var request =
+            {
+                "sessionToken": "@Model.SessionToken",
+                "merchantId": "@Model.MerchantId",
+                "merchantSiteId": "@Model.MerchantSiteId",
+                "userTokenId": "@Model.UserTokenId",
+                "clientUniqueId": "@Model.ClientUniqueId",
+                "amount": amount,
+                "currency": currency,
+                "paymentOption": {
+                    "card": {
+                        "cardNumber": cardNumber,
+                        "cardHolderName": cardholderName,
+                        "expirationMonth": expMonth,
+                        "expirationYear": expYear,
+                        "CVV": CVV,
+                        "threeD": {
+                            "methodNotificationUrl": "www.ThisIsAMethodNotificationURL.com"
+                        }
+                    }
+                },
+                "billingAddress": {
+                    "country": "GB",
+                    "email": "john.smith@safecharge.com",
+                },
+                "urlDetails": {
+                    "notificationUrl": "http://srv-bsf-devppptrunk.gw-4u.com/ppptest/NotifyMerchantTest"
+                },
+                "timeStamp": timestamp,
+                "checksum": checksum
+            };
+            $.ajax({
+                method: "POST",
+                url: "https://ppp-test.safecharge.com/ppp/api/v1/initPayment.do",
+                data: JSON.stringify(request),
+                contentType: 'application/json',
+            })
+                .done(function (msg) {
+                    console.log(msg);
+                    alert("Data Saved: " + msg);
+                });
+        }
+    </script>
+}
