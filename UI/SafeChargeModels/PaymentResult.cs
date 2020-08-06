@@ -3,7 +3,7 @@
 namespace UI.SafeChargeModels
 {
     [Serializable]
-    public class OpenOrderRequest
+    public class PaymentResult
     {
         public string MerchantId { get; set; }
         public string MerchantSiteId { get; set; }

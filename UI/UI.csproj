@@ -210,10 +210,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeChargeModels\CheckoutViewModel.cs" />
     <Compile Include="Helpers\CheckSumProvider.cs" />
-    <Compile Include="SafeChargeModels\OpenOrderRequestWebSDK.cs" />
+    <Compile Include="SafeChargeModels\Authenticate3dResult.cs" />
+    <Compile Include="SafeChargeModels\SessionTokenRequest.cs" />
+    <Compile Include="SafeChargeModels\PaymentResult.cs" />
+    <Compile Include="SafeChargeModels\PaymentRequest.cs" />
+    <Compile Include="SafeChargeModels\OpenOrderRequest.cs" />
     <Compile Include="SafeChargeModels\PaymentStatusResponse.cs" />
     <Compile Include="Helpers\LongToStringJsonConverter.cs" />
-    <Compile Include="SafeChargeModels\OpenOrderRequest.cs" />
     <Compile Include="SafeChargeModels\OpenOrderResponse.cs" />
     <Compile Include="SafeChargeModels\PaymentStatusRequest.cs" />
     <Compile Include="Startup.cs" />

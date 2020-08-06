@@ -140,7 +140,7 @@ function navigateToCheckoutWith3d() {
     });
   }
 
-  window.location.href = "/Home/CheckoutWithSDK?amount=" + total.toFixed(2).toString() + "&currency=" + currency;
+  window.location.href = "/Home/CheckoutWithSDK?amount=" + total.toFixed(2).toString() + "&currency=" + currency + "&threeD=" + true;
 };
 
 //function InitializeCart() {

@@ -106,7 +106,7 @@
         var sfc = SafeCharge({
             env: 'int',
             merchantId: '@Model.MerchantId',
-            merchantSiteId: '@Model.MerchantSiteId', 
+            merchantSiteId: '@Model.MerchantSiteId',
         });
 
         var ScFields = sfc.fields({
@@ -150,44 +150,81 @@
 
         function main() {
             var cardholderName = document.getElementById('cardHolderName').value;
+            var amount = "@ViewBag.AuthorizedAmount";
+            var currency = "@ViewBag.Currency";
 
             sfc.authenticate3d({
                 "sessionToken": '@Model.SessionToken',
                 "userTokenId": "@Model.UserTokenId",
                 "clientUniqueId": "@Model.ClientUniqueId",
-                "currency": "@ViewBag.Currency",
-                "amount": "@ViewBag.AuthorizedAmount",
+                "currency": currency,
+                "amount": amount,
                 "paymentOption": scard,
                 "cardHolderName": cardholderName,
                 "billingAddress": {
-                    //"firstName": "John",
-                    //"lastName": "Smith",
-                    //"address": "340689 main St.",
-                    //"city": "London",
                     "email": "john.smith@safecharge.com",
                     "country": "GB"
                 }
             }, function (res) {
                     console.log(res);
-                    console.log(res.paymentOption.threeD); // the structure containing the CVV and ECI
                     if (res.cancelled === true) {
-                        example.querySelector('.token').innerText = 'cancelled';
+                        alert("An error occured!");
                     } else {
-                        example.querySelector('.token').innerText = res.transactionStatus + ' - Reference: ' + res.transactionId;
-                    }
-                    example.classList.add('submitted');
-
-                    if (res.result === "APPROVED") {
-                        alert("Checking payment status");
-                        $.get('/Home/GetPaymentStatus', { sessionToken: '@Model.SessionToken' }, function (data, textStatus) {
+                        $.get('/Home/GetChecksum', {
+                            amount: JSON.stringify('@ViewBag.AuthorizedAmount'),
+                            currency: JSON.stringify('@ViewBag.Currency'),
+                        }, function (data, textStatus) {
                             console.log(data)
                             if (textStatus === "success") {
                                 alert(data);
-                                window.location.href = "/Home";
+                                var obj = {
+                                    "sessionToken": "@Model.SessionToken",
+                                    "merchantId": "@Model.MerchantId",
+                                    "merchantSiteId": "@Model.MerchantSiteId",
+                                    "clientRequestId": "@Model.ClientRequestId",
+                                    "amount": amount,
+                                    "currency": currency,
+                                    "userTokenId": "@Model.UserTokenId",
+                                    "clientUniqueId": "@Model.ClientUniqueId",
+                                    "orderId": "@Model.OrderId",
+                                    "paymentOption": {
+                                        "card": {
+                                            "cardNumber": res.ccCardNumber,
+                                            "cardHolderName": "John Smith",
+                                            "expirationMonth": "12",
+                                            "expirationYear": "2022",
+                                            "CVV": "217"
+                                        }
+                                    },
+                                    "deviceDetails": {
+                                        "ipAddress": "93.146.254.172"
+                                    },
+                                    "timeStamp": data.timeStamp,
+                                    "checksum": data.checksum
+                                }
+                                console.log(obj);
+
+                                $.get('/Home/Payment', {
+                                    data : JSON.stringify(obj),
+                                    authenticate3dResult: JSON.stringify(res),
+                                    amount: JSON.stringify('@ViewBag.AuthorizedAmount'),
+                                    currency: JSON.stringify('@ViewBag.Currency'),
+                                    sessionToken: JSON.stringify('@Model.SessionToken'),
+                                    requestId: JSON.stringify('@Model.ClientRequestId'),
+                                    uniqeId: JSON.stringify('@Model.ClientUniqueId'),
+                                    orderId: JSON.stringify('@Model.OrderId'),
+                                    cardholderName: JSON.stringify("FL-BRW1"),
+                                    CVV: JSON.stringify("222"),
+                                }, function (data, textStatus) {
+                                    console.log(data)
+                                    if (textStatus === "success") {
+                                        alert(data);
+                                        //window.location.href = "/Home";
+
+                                    }
+                                }, "json");
                             }
                         }, "json");
-                    } else {
-                        alert("An error occured!");
                     }
             });
         }
