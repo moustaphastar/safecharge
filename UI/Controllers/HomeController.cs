@@ -16,7 +16,8 @@ namespace UI.Controllers
         private const string SECRET = "8NcFYQjN5HlURMSdVef9rInFMWJRsfzr1ljw2Z8Jx7zv3AvcUwYPmXLWa9td5mt8";
         private const string MERCHANT_ID = "8813977768255734154";
         private const string MERCHANT_SITE_ID = "205848";
-        private const string CLIENT_UNIQUE_ID = "203978";
+        private const string CLIENT_UNIQUE_ID = "12345";
+        private const string CLIENT_REQUEST_ID = "20200807235612";
         private const string User_Token_Id = "c433b5a9-bf3f";
         private readonly List<string> ALLOWED_CURRENCIES = new List<string> { "USD", "EUR" };
         private const string API_GET_SESSION_TOKEN = "https://ppp-test.safecharge.com/ppp/api/v1/getSessionToken.do";
@@ -46,19 +47,26 @@ namespace UI.Controllers
         {
             bool parseAmount = decimal.TryParse(amount, out decimal _amount);
             string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            OpenOrderResponse sessionTokenInfo = GetSessionToken(timeStamp);
-
-            if (sessionTokenInfo == null)
+            OpenOrderResponse order = OpenOrder(currency.ToUpper(), amount, timeStamp);
+            if (order == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
+
+            //OpenOrderResponse sessionTokenInfo = GetSessionToken(timeStamp);
+
+            //if (sessionTokenInfo == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            //}
 
             ViewBag.Amount = amount;
             ViewBag.Currency = currency.ToUpper();
             ViewBag.TimeStamp = timeStamp;
             ViewBag.Checksum = GetChecksumString(amount, currency, timeStamp);
 
-            return View(sessionTokenInfo);
+            //return View(sessionTokenInfo);
+            return View(order);
         }
 
         [HttpGet]
@@ -104,13 +112,12 @@ namespace UI.Controllers
             {
                 MerchantId = MERCHANT_ID,
                 MerchantSiteId = MERCHANT_SITE_ID,
-                ClientUniqueId = CLIENT_UNIQUE_ID,
                 Currency = currency.ToUpper(),
                 Amount = amount,
                 TimeStamp = timeStamp,
-                Checksum = GetChecksumSha256(GetChecksumString(amount, currency, timeStamp))
             };
 
+            request.Checksum = GetChecksumString(amount, currency, timeStamp);
             string requestJson = JsonSerializer.Serialize(request, JsonSerializerOptions);
             string responseJson = GetResponseFromHost(requestJson, API_OPEN_ORDER);
 
@@ -186,6 +193,7 @@ namespace UI.Controllers
 
         private string GetChecksumString(string amount, string currency, string timeStamp)
         {
+            //8813977768255734154205848180.00USD202008072120308NcFYQjN5HlURMSdVef9rInFMWJRsfzr1ljw2Z8Jx7zv3AvcUwYPmXLWa9td5mt8
             string str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency, timeStamp, SECRET);
             string checksumString = GetChecksumSha256(str);
             return checksumString;
