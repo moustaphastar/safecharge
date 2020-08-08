@@ -70,30 +70,30 @@
                                 <label for="cardHolderName">Card Holder Name</label>
                                 <input type="text" id="cardHolderName" class="col-12" placeholder="FL-BRW1" value="FL-BRW1" />
                             </div>
-                            <div class="form-group">
-                                <label for="card-field-placeholder">Credit or debit card</label>
-                                <div id="card-field-placeholder" class="col-12 m-auto p-2">
-                                    <!-- SFC Card widget will be inserted here. -->
-                                </div>
-                                <div id="scard-errors" role="alert"></div>
-                            </div>
-
                             @*<div class="form-group">
-                                    <label for="cardNumber">Card Number</label>
-                                    <input type="text" id="cardNumber" class="col-12" placeholder="4000020951595032" value="4000020951595032" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="expMonth">Expiry Month</label>
-                                    <input type="text" id="expMonth" class="col-12" placeholder="12" value="12" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="expYear">Expiry Year</label>
-                                    <input type="text" id="expYear" class="col-12" placeholder="25" value="25" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="CVV">CVV</label>
-                                    <input type="text" id="CVV" class="col-12" placeholder="217" value="217" />
-                                </div>*@
+                                    <label for="card-field-placeholder">Credit or debit card</label>
+                                    <div id="card-field-placeholder" class="col-12 m-auto p-2">
+                                        <!-- SFC Card widget will be inserted here. -->
+                                    </div>
+                                    <div id="scard-errors" role="alert"></div>
+                                </div> *@
+
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" class="col-12" placeholder="4000020951595032" value="4000020951595032" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expMonth">Expiry Month</label>
+                                <input type="text" id="expMonth" class="col-12" placeholder="12" value="12" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expYear">Expiry Year</label>
+                                <input type="text" id="expYear" class="col-12" placeholder="25" value="25" />
+                            </div>
+                            <div class="form-group">
+                                <label for="CVV">CVV</label>
+                                <input type="text" id="CVV" class="col-12" placeholder="217" value="217" />
+                            </div>
                         </div>
                     </div>
                     <!--/ End Payment Method Widget -->
@@ -163,10 +163,10 @@
 
         function main() {
             var cardholderName = document.getElementById('cardHolderName').value;
-            //var cardNumber = document.getElementById('cardNumber').value;
-            //var expMonth = document.getElementById('expMonth').value;
-            //var expYear = document.getElementById('expYear').value;
-            //var CVV = document.getElementById('CVV').value;
+            var cardNumber = document.getElementById('cardNumber').value;
+            var expMonth = document.getElementById('expMonth').value;
+            var expYear = document.getElementById('expYear').value;
+            var CVV = document.getElementById('CVV').value;
             var amount = "@String.Format("{0:c}", ViewBag.Amount)";
             var currency = "@ViewBag.Currency";
             var timeStamp = "@ViewBag.TimeStamp";
@@ -178,18 +178,16 @@
                 "clientUniqueId": "@Model.ClientUniqueId",
                 "currency": currency,
                 "amount": amount,
-                "paymentOption": scard,
                 "cardHolderName": cardholderName,
-                "transactionType": "Auth",
-                //"paymentOption": {
-                //    "card": {
-                //        "cardNumber": cardNumber,
-                //        "cardHolderName": cardholderName,
-                //        "expirationMonth": expMonth,
-                //        "expirationYear": expYear,
-                //        "CVV": CVV
-                //    }
-                //},
+                "paymentOption": {
+                    "card": {
+                        "cardNumber": cardNumber,
+                        "cardHolderName": cardholderName,
+                        "expirationMonth": expMonth,
+                        "expirationYear": expYear,
+                        "CVV": CVV
+                    }
+                },
                 "billingAddress": {
                     "email": "john.smith@safecharge.com",
                     "country": "GB"
@@ -213,22 +211,21 @@
                                 "country": "GB",
                                 "email": "someemail@somedomain.com"
                             },
-                            "transactionType": "Auth",
                             "paymentOption": {
                                 "userPaymentoptionId": res.userPaymentoptionId,
                                 "card": {
-                                    //"cardNumber": cardNumber,
-                                    //"cardHolderName": cardholderName,
-                                    //"expirationMonth": expMonth,
-                                    //"expirationYear": expYear,
-                                    //"CVV": "122",
+                                    "cardNumber": cardNumber,
+                                    "cardHolderName": cardholderName,
+                                    "expirationMonth": expMonth,
+                                    "expirationYear": expYear,
+                                    "CVV": "122",
                                     "threeD": {
-                                        //"externalMpi": {
+                                        "externalMpi": {
                                             "eci": res.eci,
                                             "threeDProtocolVersion": "2",
                                             "cavv": res.cavv,
                                             "dsTransID": res.dsTransID
-                                        //}
+                                        }
                                     }
                                 }
                             },

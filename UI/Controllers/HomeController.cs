@@ -53,19 +53,11 @@ namespace UI.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
 
-            //OpenOrderResponse sessionTokenInfo = GetSessionToken(timeStamp);
-
-            //if (sessionTokenInfo == null)
-            //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.NotFound);
-            //}
-
             ViewBag.Amount = amount;
             ViewBag.Currency = currency.ToUpper();
             ViewBag.TimeStamp = timeStamp;
             ViewBag.Checksum = GetChecksumString(amount, currency, timeStamp);
 
-            //return View(sessionTokenInfo);
             return View(order);
         }
 
@@ -83,27 +75,6 @@ namespace UI.Controllers
         #endregion
 
         #region Helpers
-        private OpenOrderResponse GetSessionToken(string timestamp)
-        {
-            var model = new OpenOrderRequest
-            {
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                TimeStamp = timestamp
-            };
-
-            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, timestamp, SECRET);
-            var checksum = GetChecksumSha256(str);
-
-            model.Checksum = checksum;
-
-            var requestJson = JsonSerializer.Serialize(model, JsonSerializerOptions);
-            var resultJson = GetResponseFromHost(requestJson, API_GET_SESSION_TOKEN);
-            var result = JsonSerializer.Deserialize<OpenOrderResponse>(resultJson, JsonSerializerOptions);
-
-            return result;
-        }
-
         private OpenOrderResponse OpenOrder(string currency, string amount, string timeStamp)
         {
             currency = currency.ToUpper();
