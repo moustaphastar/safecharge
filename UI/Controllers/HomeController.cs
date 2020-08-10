@@ -57,8 +57,30 @@ namespace UI.Controllers
             ViewBag.Currency = currency.ToUpper();
             ViewBag.TimeStmap = timeStamp;
             ViewBag.Checksum = GetChecksumString(timeStamp);
+            ViewBag.ChecksumForPayment = GetChecksumString(currency, amount, timeStamp);
 
             return View(sessionTokenInfo);
+        }
+
+        //public JsonResult MethodUrl()
+        //{
+        //    return Json("OK", JsonRequestBehavior.AllowGet);
+        //}
+
+        [HttpPost]
+        public ActionResult MethodUrl(string CRes)
+        {
+
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        public JsonResult GetPaymentChecksum(string currency, string amount, string timeStamp)
+        {
+            currency = currency.ToUpper();
+
+            string checksum = GetChecksumString(amount, currency, timeStamp);
+
+            return Json(checksum, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -155,6 +177,15 @@ namespace UI.Controllers
         public string GetChecksumString(string timestamp)
         {
             var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, timestamp, SECRET);
+            var checksum = GetChecksumSha256(str);
+
+
+            return checksum;
+        }
+
+        public string GetChecksumString(string currency, string amount, string timestamp)
+        {
+            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency.ToUpper(), timestamp, SECRET);
             var checksum = GetChecksumSha256(str);
 
 

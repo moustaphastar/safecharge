@@ -68,11 +68,11 @@
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="cardHolderName">Card Holder Name</label>
-                                <input type="text" id="cardHolderName" class="col-12" placeholder="FL-BRW1" value="FL-BRW1" />
+                                <input type="text" id="cardHolderName" class="col-12" placeholder="CL-BRW1" value="CL-BRW1" />
                             </div>
                             <div class="form-group">
                                 <label for="cardNumber">Card Number</label>
-                                <input type="text" id="cardNumber" class="col-12" placeholder="4000027891380961" value="4000027891380961" />
+                                <input type="text" id="cardNumber" class="col-12" placeholder="4000020951595032" value="4000020951595032" />
                             </div>
                             <div class="form-group">
                                 <label for="expMonth">Expiry Month</label>
@@ -100,9 +100,11 @@
                     <!--/ End Button Widget -->
                 </div>
                 <!-- Browser Fingerprinting Form -->
-                <form name="frm" method="POST" action={paymentOption.card.threeD.methodURL}>
-                    <input type="hidden" name="threeDSMethodData" value={paymentOption.card.threeD.methodPayload}>
+                <form id="fingerprintingform" name="fingerprintingform" method="POST" action="">
+                    <input type="hidden" id="threeDSMethodData" name="threeDSMethodData">
                 </form>
+
+
                 <!--/ End Browser Fingerprinting Form -->
             </div>
         </div>
@@ -123,14 +125,16 @@
             var currency = "@ViewBag.Currency";
             var timestamp = "@ViewBag.TimeStmap";
             var checksum = "@ViewBag.Checksum"
+            var checksumForPayment = "@ViewBag.ChecksumForPayment"
 
             var request =
             {
                 "sessionToken": "@Model.SessionToken",
                 "merchantId": "@Model.MerchantId",
                 "merchantSiteId": "@Model.MerchantSiteId",
-                "userTokenId": "@Model.UserTokenId",
-                "clientUniqueId": "@Model.ClientUniqueId",
+                //"userTokenId": "@Model.UserTokenId",
+                //"clientUniqueId": "@Model.ClientUniqueId",
+                "clientRequestId" :"@Model.ClientRequestId",
                 "amount": amount,
                 "currency": currency,
                 "paymentOption": {
@@ -141,30 +145,144 @@
                         "expirationYear": expYear,
                         "CVV": CVV,
                         "threeD": {
-                            "methodNotificationUrl": "www.ThisIsAMethodNotificationURL.com"
+                            "methodNotificationUrl": "www.ThisIsAMethodNotificationURL.com",//"https://localhost:44384/home/methodurl",
                         }
                     }
                 },
-                "billingAddress": {
-                    "country": "GB",
-                    "email": "john.smith@safecharge.com",
-                },
-                "urlDetails": {
-                    "notificationUrl": "http://srv-bsf-devppptrunk.gw-4u.com/ppptest/NotifyMerchantTest"
-                },
+                //"billingAddress": {
+                //    "country": "GB",
+                //    "email": "john.smith@safecharge.com",
+                //},
                 "timeStamp": timestamp,
                 "checksum": checksum
             };
+
             $.ajax({
                 method: "POST",
                 url: "https://ppp-test.safecharge.com/ppp/api/v1/initPayment.do",
                 data: JSON.stringify(request),
-                contentType: 'application/json',
+                contentType: "application/json",
+                success: function (response) {
+                    console.log(response);
+                    alert("PAYMENT INIT OK!");
+                    var related = response.transactionId;
+
+                        var paymentRequest1 = {
+                            "sessionToken": "@Model.SessionToken",
+                            "merchantId": "@Model.MerchantId",
+                            "merchantSiteId": "@Model.MerchantSiteId",
+                            "clientRequestId": "@Model.ClientRequestId",
+                            "currency": currency,
+                            "amount": amount,
+                            "relatedTransactionId": related,
+                            //"transactionType": "Auth",
+                            "billingAddress": {
+                                "country": "GB",
+                                "email": "someemail@somedomain.com"
+                            },
+                            "paymentOption": {
+                                //"userPaymentoptionId": response.userPaymentoptionId,
+                                "card": {
+                                    "cardNumber": cardNumber,
+                                    "cardHolderName": cardholderName,
+                                    "expirationMonth": expMonth,
+                                    "expirationYear": expYear,
+                                    "CVV": "122",
+                                    "threeD": {
+                                        "methodCompletionInd": "U",
+                                        "version": "2.1.0",
+                                        "notificationURL": "https://3dsecuresafecharge.000webhostapp.com/3Dv2/notificationUrl.php",
+                                        "merchantURL": "http://www.The-Merchant-Website-Fully-Quallified-URL.com",
+                                        "platformType": "02",
+                                        "browserDetails": {
+                                            "acceptHeader": "text/html,application/xhtml+xml",
+                                            "ip": "192.168.1.11",
+                                            "javaEnabled": "TRUE",
+                                            "javaScriptEnabled": "TRUE",
+                                            "language": "EN",
+                                            "colorDepth": "48",
+                                            "screenHeight": "400",
+                                            "screenWidth": "600",
+                                            "timeZone": "0",
+                                            "userAgent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47"
+                                        }
+                                    }
+                                }
+                            },
+                            "deviceDetails": {
+                                "ipAddress": "10.0.0.193"
+                            },
+                            "timeStamp": timestamp,
+                            "checksum": checksumForPayment
+                        };
+
+                        $.ajax({
+                            method: "POST",
+                            url: "https://ppp-test.safecharge.com/ppp/api/v1/payment.do",
+                            data: JSON.stringify(paymentRequest1),
+                            contentType: "application/json",
+                            success: function (response1) {
+                                console.log(response1);
+                                if (response1.transactionStatus === "REDIRECT") {
+                                    console.log("Challenge needed!");
+                                    var acsUrl = response1.paymentOption.card.threeD.acsUrl;
+                                    var cReq = response1.paymentOption.card.threeD.cReq;
+                                    var url = "https://3dsecuresafecharge.000webhostapp.com/3Dv2/showUrl.php?acsUrl=" + acsUrl + "&creq=" + cReq;
+                                    console.log(url);
+
+                                    var win = window.open(url, "_blank");
+                                    alert("Waiting for challenge result...");
+
+                                    alert("Challenge Done!");
+                                    var paymentRequest2 = {
+                                        "sessionToken": "@Model.SessionToken",
+                                        "merchantId": "@Model.MerchantId",
+                                        "merchantSiteId": "@Model.MerchantSiteId",
+                                        "clientRequestId": "@Model.ClientRequestId",
+                                        "currency": currency,
+                                        "amount": amount,
+                                        "relatedTransactionId": response1.transactionId,
+                                        "transactionType": "Auth",
+                                        "billingAddress": {
+                                            "country": "GB",
+                                            "email": "someemail@somedomain.com"
+                                        },
+                                        "paymentOption": {
+                                            "card": {
+                                                "cardNumber": cardNumber,
+                                                "cardHolderName": cardholderName,
+                                                "expirationMonth": expMonth,
+                                                "expirationYear": expYear,
+                                                "CVV": "122",
+                                            },
+                                        },
+                                        "deviceDetails": {
+                                            "ipAddress": "10.0.0.193"
+                                        },
+                                        "timeStamp": timestamp,
+                                        "checksum": checksumForPayment
+                                    };
+                                    console.log(paymentRequest2);
+                                    $.ajax({
+                                        method: "POST",
+                                        url: "https://ppp-test.safecharge.com/ppp/api/v1/payment.do",
+                                        data: JSON.stringify(paymentRequest2),
+                                        contentType: "application/json",
+                                        success: function (response) {
+                                            console.log(response);
+
+                                        },
+                                    });
+                                } else {
+                                    alert("OK");
+                                    console.log(response);
+                                }
+                            }
+                        });
+                    //}
+                }
             })
-                .done(function (msg) {
-                    console.log(msg);
-                    alert("Data Saved: " + msg);
-                });
         }
     </script>
 }
+
