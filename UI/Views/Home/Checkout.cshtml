@@ -134,7 +134,7 @@
                 "merchantSiteId": "@Model.MerchantSiteId",
                 //"userTokenId": "@Model.UserTokenId",
                 //"clientUniqueId": "@Model.ClientUniqueId",
-                "clientRequestId" :"@Model.ClientRequestId",
+                //"clientRequestId" :"@Model.ClientRequestId",
                 "amount": amount,
                 "currency": currency,
                 "paymentOption": {
@@ -270,7 +270,7 @@
                                         contentType: "application/json",
                                         success: function (response) {
                                             console.log(response);
-
+                                            alert("OK");
                                         },
                                     });
                                 } else {
@@ -279,7 +279,6 @@
                                 }
                             }
                         });
-                    //}
                 }
             })
         }

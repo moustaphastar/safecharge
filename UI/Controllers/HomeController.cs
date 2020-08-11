@@ -62,13 +62,8 @@ namespace UI.Controllers
             return View(sessionTokenInfo);
         }
 
-        //public JsonResult MethodUrl()
-        //{
-        //    return Json("OK", JsonRequestBehavior.AllowGet);
-        //}
-
         [HttpPost]
-        public ActionResult MethodUrl(string CRes)
+        public ActionResult MethodUrl(string creq, string cres)
         {
 
             return new HttpStatusCodeResult(HttpStatusCode.OK);
