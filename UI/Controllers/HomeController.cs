@@ -63,11 +63,22 @@ namespace UI.Controllers
         }
 
         [HttpPost]
-        public ActionResult MethodUrl(string creq, string cres)
+        public ActionResult MethodUrl(string threeDSMethodData)
         {
-
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            //threeDSMethodData: eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjY1YjIwYjY4LTNiOTItNGM0YS05OTc5LTkyYmYxMmFlODhmOSJ9
+            string base64Encoded = threeDSMethodData;
+            string base64Decoded;
+            byte[] data = Convert.FromBase64String(base64Encoded);
+            base64Decoded = Encoding.ASCII.GetString(data);
+            return new HttpStatusCodeResult(HttpStatusCode.Accepted);
         }
+
+        //[HttpPost]
+        //public ActionResult MethodUrl(string creq, string cres)
+        //{
+
+        //    return new HttpStatusCodeResult(HttpStatusCode.OK);
+        //}
 
         public JsonResult GetPaymentChecksum(string currency, string amount, string timeStamp)
         {

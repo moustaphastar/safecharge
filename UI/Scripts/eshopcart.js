@@ -126,3 +126,85 @@ function navigateToCheckoutWithSDK() {
 
   window.location.href = "/Home/Checkout?amount=" + total.toFixed(2).toString() + "&currency=" + currency;
 };
+
+function cardSelected() {
+  var selectedValue = document.getElementById("cardSelect").value;
+  var cardholderName = document.getElementById("cardHolderName");
+
+  if (selectedValue === "2221008123677736") {
+    cardholderName.value = "CL-BRW1";
+  } else if (selectedValue === "4000027891380961") {
+    cardholderName.value = "FL-BRW1";
+  } else {
+    cardholderName.value = "John Sample";
+  }
+}
+
+function countBack() {
+  var date = new Date().getTime();
+
+  // Update the count down every 1 second
+  var x = setInterval(function () {
+
+    // Get today's date and time
+    var now = new Date().getTime();
+
+    // Find the distance between now and the count down date
+    var distance = date - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the result in the element with id="demo"
+    document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+      + minutes + "m " + seconds + "s ";
+
+    // If the count down is finished, write some text
+    if (distance < 0) {
+      clearInterval(x);
+      document.getElementById("demo").innerHTML = "EXPIRED";
+    }
+  }, 1000);
+
+}
+
+//function makeFrame(form, methodUrl) {
+//  var frame = document.createElement("iframe");
+//  //frame.setAttribute("name", "fingerprintiframe");
+//  frame.setAttribute("src", methodUrl);
+//  frame.style.width = "0px";
+//  frame.style.height = "0px";
+//  document.body.appendChild(frame);
+//}
+
+//function makeFrame(methodUrl) {
+//  var frame = document.createElement("iframe");
+//  frame.setAttribute("name", "fingerprintiframe");
+//  frame.setAttribute("src", methodUrl);
+//  frame.style.width = "0px";
+//  frame.style.height = "0px";
+//  document.body.appendChild(frame);
+//}
+window.top.addEventListener("message", receiveMessage, false);
+function receiveMessage(event) {
+  // Do we trust the sender of this message?
+  //if (event.origin !== "http://example.com:8080")
+  //  return;
+
+  // event.source is window.opener
+  // event.data is "hello there!"
+
+  // Assuming you've verified the origin of the received message (which
+  // you must do in any case), a convenient idiom for replying to a
+  // message is to call postMessage on event.source and provide
+  // event.origin as the targetOrigin.
+  console.log(event);
+  event.source.postMessage("hi there yourself!  the secret response " +
+    "is: rheeeeet!",
+    event.origin);
+}
+
+
