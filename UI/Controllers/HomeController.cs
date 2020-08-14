@@ -38,69 +38,7 @@ namespace UI.Controllers
         }
 
         [HttpGet]
-        public ActionResult Checkout(string amount, string currency, string cartItems)
-        {
-            bool parseAmount = decimal.TryParse(amount, out decimal _amount);
-            //if (parseAmount != true || ALLOWED_CURRENCIES.Contains(currency.ToUpper()))//.Contains(currency.ToUpper()))
-            //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            //}
-            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
-            //Prepare model for openOrder() api request.
-            OpenOrderRequest openOrderModel = new OpenOrderRequest()
-            {
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                Currency = currency.ToUpper(),
-                Amount = amount,
-                TimeStamp = timeStamp,
-                Checksum = GetChecksumSha256(string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency.ToUpper(), timeStamp, SECRET))
-            };
-
-            // Send a request to openOrder() api call to open a session.
-            string openOrderModelJson = JsonSerializer.Serialize(openOrderModel, JsonSerializerOptions);
-            string openOrderResponse = GetResponseFromHost(openOrderModelJson, API_OPEN_ORDER);
-
-            // If response null, return service unavailable result.
-            if (openOrderResponse == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.ServiceUnavailable);
-            }
-
-            // Deserialize openOrder() api response.
-            OpenOrderResponse openOrderResult = JsonSerializer.Deserialize<OpenOrderResponse>(openOrderResponse, JsonSerializerOptions);
-
-            // Raise error if openOrder() api response status value is ERROR.
-            if (openOrderResult.Status == "ERROR")
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            // Prepare view model.
-            CheckoutViewModel model = new CheckoutViewModel()
-            {
-                Amount = _amount,
-                Checksum = "",
-                Currency = currency.ToUpper(),
-                ItemListString = "",
-                Items = JsonSerializer.Deserialize<List<CartItem>>(cartItems, JsonSerializerOptions),
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                TimeStamp = timeStamp,
-                UserTokenId = openOrderResult.SessionToken,
-                Version = "3.0.0", // TODO: Bug: Host returns 1.0.0 which fails processing.
-            };
-
-            // Produce view model's checksum.
-            model.Items.ForEach(x => model.ItemListString += string.Concat(x.Name, x.Total, x.Quantity));
-            model.Checksum = GetChecksumSha256(string.Concat(SECRET, MERCHANT_ID, currency.ToUpper(), model.Amount, model.ItemListString, model.TimeStamp));
-
-            return View(model);
-        }
-
-        [HttpGet]
-        public ActionResult CheckoutWithSDK(string amount, string currency)
+        public ActionResult Checkout(string amount, string currency)
         {
             bool parseAmount = decimal.TryParse(amount, out decimal _amount);
             bool currencyAllowed = ALLOWED_CURRENCIES.Contains(currency.ToUpper());
@@ -110,21 +48,7 @@ namespace UI.Controllers
             }
 
             string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
-            // Prepare model for openOrder() api request.
-            OpenOrderRequest openOrderModel = new OpenOrderRequest()
-            {
-                MerchantId = MERCHANT_ID,
-                MerchantSiteId = MERCHANT_SITE_ID,
-                Currency = currency.ToUpper(),
-                Amount = amount,
-                TimeStamp = timeStamp,
-                Checksum = GetChecksumSha256(string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency.ToUpper(), timeStamp, SECRET))
-            };
-
-            // Send a request to openOrder() api call to open a session.
-            string openOrderModelJson = JsonSerializer.Serialize(openOrderModel, JsonSerializerOptions);
-            string openOrderResponse = GetResponseFromHost(openOrderModelJson, API_OPEN_ORDER);
+            OpenOrderResponse openOrderResponse = OpenOrder(amount, currency, timeStamp);
 
             // If response null, return service unavailable result.
             if (openOrderResponse == null)
@@ -132,27 +56,23 @@ namespace UI.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.ServiceUnavailable);
             }
 
-            // Deserialize openOrder() api response.
-            OpenOrderResponse openOrderResult = JsonSerializer.Deserialize<OpenOrderResponse>(openOrderResponse, JsonSerializerOptions);
-
-            // Raise error if openOrder() api response status value is ERROR.
-            if (openOrderResult.Status == "ERROR")
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            ViewBag.AuthorizedAmount = amount;
+            ViewBag.Amount = amount;
             ViewBag.Currency = currency.ToUpper();
-            return View(openOrderResult);
+            return View(openOrderResponse);
         }
 
-        [HttpGet]
+        [HttpPost]
         public JsonResult GetPaymentStatus(string sessionToken)
         {
+            var paymentStatusRequest = new PaymentStatusRequest
+            {
+                SessionToken = sessionToken
+            };
+
             try
             {
-                string paymentStatusJson = JsonSerializer.Serialize(new PaymentStatusRequest() { SessionToken = sessionToken });
-                string paymentStatusResponse = GetResponseFromHost(API_GET_PAYMENT_STATUS, paymentStatusJson);
+                string paymentStatusJson = JsonSerializer.Serialize(paymentStatusRequest, JsonSerializerOptions);
+                string paymentStatusResponse = GetResponseFromHost(paymentStatusJson, API_GET_PAYMENT_STATUS);
 
                 // If response null, return service unavailable result.
                 if (paymentStatusResponse == null)
@@ -187,6 +107,25 @@ namespace UI.Controllers
         #endregion
 
         #region Helpers
+        private OpenOrderResponse OpenOrder(string amount, string currency, string timestamp)
+        {
+            OpenOrderRequest request = new OpenOrderRequest()
+            {
+                MerchantId = MERCHANT_ID,
+                MerchantSiteId = MERCHANT_SITE_ID,
+                Currency = currency.ToUpper(),
+                Amount = amount,
+                TimeStamp = timestamp,
+                Checksum = GetChecksumString(amount, currency.ToUpper(), timestamp)
+            };
+
+            var requestJson = JsonSerializer.Serialize(request, JsonSerializerOptions);
+            var resultJson = GetResponseFromHost(requestJson, API_OPEN_ORDER);
+            var result = JsonSerializer.Deserialize<OpenOrderResponse>(resultJson, JsonSerializerOptions);
+
+            return result;
+        }
+
         private string GetResponseFromHost(string serializedData, string address)
         {
             try
@@ -202,6 +141,7 @@ namespace UI.Controllers
                 return null;
             }
         }
+
         private List<Product> GetProducts()
         {
             List<Product> products = new List<Product>
@@ -213,6 +153,22 @@ namespace UI.Controllers
             };
 
             return products;
+        }
+
+        public string GetChecksumString(string timestamp)
+        {
+            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, timestamp, SECRET);
+            var checksum = GetChecksumSha256(str);
+
+            return checksum;
+        }
+
+        public string GetChecksumString(string amount, string currency, string timestamp)
+        {
+            var str = string.Concat(MERCHANT_ID, MERCHANT_SITE_ID, amount, currency.ToUpper(), timestamp, SECRET);
+            var checksum = GetChecksumSha256(str);
+
+            return checksum;
         }
 
         private string GetChecksumSha256(string text)
