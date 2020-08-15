@@ -93,13 +93,18 @@ namespace UI.Controllers
             return View(model);
         }
 
-        [HttpGet]
+        [HttpPost]
         public JsonResult GetPaymentStatus(string sessionToken)
         {
+            var paymentStatusRequest = new PaymentStatusRequest
+            {
+                SessionToken = sessionToken
+            };
+
             try
             {
-                string paymentStatusJson = JsonSerializer.Serialize(new PaymentStatusRequest() { SessionToken = sessionToken });
-                string paymentStatusResponse = GetResponseFromHost(API_GET_PAYMENT_STATUS, paymentStatusJson);
+                string paymentStatusJson = JsonSerializer.Serialize(paymentStatusRequest, JsonSerializerOptions);
+                string paymentStatusResponse = GetResponseFromHost(paymentStatusJson, API_GET_PAYMENT_STATUS);
 
                 // If response null, return service unavailable result.
                 if (paymentStatusResponse == null)
