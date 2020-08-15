@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -46,10 +47,11 @@ namespace UI.Controllers
             //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             //}
 
-            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string timeStampForOpenOrderApi = DateTime.UtcNow.ToString("yyyyMMddHHmmss"); // "20200815154546";
+            string timeStampForCheckoutPage = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"); // "2020-08-15 15:45:46";
 
             //Prepare model for openOrder() api request.
-            OpenOrderResponse openOrderResponse = OpenOrder(amount, currency, timeStamp);
+            OpenOrderResponse openOrderResponse = OpenOrder(amount, currency, timeStampForOpenOrderApi);
 
             // If response null, return service unavailable result.
             if (openOrderResponse == null || openOrderResponse.Status != "SUCCESS")
@@ -62,25 +64,31 @@ namespace UI.Controllers
             // Prepare view model.
             CheckoutViewModel model = new CheckoutViewModel()
             {
-                Amount = amount,
-                Checksum = "",
-                Currency = currency.ToUpper(),
-                ItemListString = "",
-                Items = items,
+                Secret = SECRET,
                 MerchantId = MERCHANT_ID,
                 MerchantSiteId = MERCHANT_SITE_ID,
-                TimeStamp = timeStamp,
-                UserTokenId = openOrderResponse.SessionToken,
-                Version = "3.0.0", // TODO: Bug: Host returns 1.0.0 which fails processing.
+                Currency = currency.ToUpper(),
+                Amount = amount,
+                TotalTax = "0",
+                Discount = "0",
+                Shipping = "0",
+                Handling = "0",
+                FirstName = "",
+                LastName = "",
+                Address1 = "",
+                City = "",
+                //Country = "", // CA
+                Phone1 = "",             
+                Zip = "",
+                Checksum = "",
+                ItemListString = "",
+                Items = items,
+                TimeStamp = timeStampForCheckoutPage,
+                UserTokenId = "e5a4e1f7-28e5",
             };
 
-            model.Items.ForEach(x => model.ItemListString += string.Concat(x.Name, x.Total, x.Quantity));
-            model.Checksum = GetChecksumSha256(string.Concat(SECRET, MERCHANT_ID, currency.ToUpper(), model.Amount, model.ItemListString, model.TimeStamp));
-
-            ViewBag.Secret = SECRET;
-            ViewBag.TimeStamp = timeStamp;
-            ViewBag.Checksum1 = model.Checksum;
-            ViewBag.Checksum2 = GetChecksumSha256(string.Concat(SECRET, MERCHANT_ID, MERCHANT_SITE_ID, currency.ToUpper(), model.Amount, model.ItemListString, model.TimeStamp));
+            CultureInfo cultureEnUs = new CultureInfo("en-US"); 
+            model.Items.ForEach(x => model.ItemListString += string.Concat(x.Name, x.Price.ToString(cultureEnUs), x.Quantity));
 
             return View(model);
         }

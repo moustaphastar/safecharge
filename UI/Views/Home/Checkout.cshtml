@@ -2,19 +2,27 @@
 @{
     ViewBag.Title = "SafeCharge Checkout Page";
     Layout = null;
+    System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo("en-US", true);
+    System.Threading.Thread.CurrentThread.CurrentCulture = culture;
+    System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
     var hasher = new UI.Helpers.CheckSumProvider();
 
-    Model.Version = "4.0.0";
     string apiUrl = "https://ppp-test.safecharge.com/ppp/purchase.do";
-    var notifyUrl = "https%3A%2F%2Fsandbox.safecharge.com%2Flib%2Fdemo_process_request%2Fresponse.php";
+    string notifyUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
+    string successUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
+    string errorUrl = "https://ppp-test.safecharge.com/ppp/defaultCancel.do";
+    string pendingUrl = "https://sandbox.safecharge.com/lib/demo_process_request/response.php";
+
     var strToHash = string.Concat(
-        Model.Secret, Model.MerchantId, Model.MerchantSiteId,
-        Model.Amount, Model.Currency.ToUpper(), Model.UserTokenId,
-        Model.ItemListString,
-        Model.TimeStamp,
-        Model.Version, notifyUrl
+        Model.Secret, Model.MerchantId, Model.MerchantSiteId, Model.Version, Model.UserTokenId,
+        Model.Items.Count, Model.TotalTax, Model.Discount, Model.Shipping, Model.Handling,
+        Model.Currency.ToUpper(), Model.ItemListString, Model.Amount,
+        Model.PaymentMethod, Model.Locale, Model.Email, Model.Country,
+        notifyUrl, successUrl, errorUrl, pendingUrl,
+        Model.TimeStamp
         );
 
+    string hash = hasher.GetChecksumSha256(strToHash);
 
     string itemList = "";
     int count = Model.Items.Count;
@@ -24,20 +32,46 @@
         var item = Model.Items[i];
         var n = i + 1;
         string item_name_n = string.Concat("item_name_", n, "=", item.Name);
-        string item_number_n = string.Concat("item_number_", n, "=", n);
+        string item_amount_n = string.Concat("item_amount_", n, "=", String.Format("{0:0.00}", item.Price));
         string item_quantity_n = string.Concat("item_quantity_", n, "=", item.Quantity);
-        string item_amount_n = string.Concat("item_amount_", n, "=", item.Total);
         itemList += string.Concat(item_name_n, "&" + item_amount_n + "&" + item_quantity_n);
-        //itemList += string.Concat(item_name_n, "&" + item_number_n + "&" + item_quantity_n + "&" + item_amount_n);
         if (n < count)
         {
             itemList += "&";
         }
     }
 
-    //string src = string.Concat(apiUrl, "?merchant_id", Model.MerchantId,  );
-    //"merchant_id=5305553900704185318&merchant_site_id=205838&version=4.0.0&user_token_id=e07095cc-7d7f&numberofitems=1&total_tax=0&discount=0&shipping=0&handling=0&currency=USD&item_name_1=Blouse&item_amount_1=40.00&item_quantity_1=1&total_amount=40.00&first_name=&address1=&payment_method=cc_card&last_name=&city=&merchantLocale=en_US&phone1=&zip=&email=test@test.com&country=CA&notify_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&success_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&error_url=https://ppp-test.safecharge.com/ppp/defaultCancel.do&pending_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&time_stamp=2020-08-15%2013:22:23&checksum=d1dd83659f9f85920df4e00c68032be926022044032d49bbe22c6214fc10f391"
-
+    string checkoutpageUrl = string.Concat(
+        apiUrl,
+        "?merchant_id=", Model.MerchantId,
+        "&merchant_site_id=", Model.MerchantSiteId,
+        "&version=", Model.Version,
+        "&user_token_id=", Model.UserTokenId,
+        "&numberofitems=", Model.Items.Count,
+        "&total_tax=", Model.TotalTax,
+        "&discount=", Model.Discount,
+        "&shipping=", Model.Shipping,
+        "&handling=", Model.Handling,
+        "&currency=", Model.Currency,
+        "&", itemList,
+        "&total_amount=", Model.Amount,
+        "&first_name=", Model.FirstName,
+        "&address1=", Model.Address1,
+        "&payment_method=", Model.PaymentMethod,
+        "&last_name=", Model.LastName,
+        "&city=", Model.City,
+        "&merchantLocale=", Model.Locale,
+        "&phone1=", Model.Phone1,
+        "&zip=", Model.Zip,
+        "&email=", Model.Email,
+        "&country=", Model.Country,
+        "&notify_url=", notifyUrl,
+        "&success_url=", successUrl,
+        "&error_url=", errorUrl,
+        "&pending_url=", pendingUrl,
+        "&time_stamp=", Model.TimeStamp,
+        "&checksum=", hash
+        );
 }
 
 <!DOCTYPE html>
@@ -59,7 +93,7 @@
     <iframe name="safeChargeIframe"
             style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"
             scrolling="auto"
-            src='@apiUrl?merchant_id=@Model.MerchantId&merchant_site_id=@Model.MerchantSiteId&version=4.0.0&user_token_id=e07095cc-7d7f&numberofitems=1&total_tax=0&discount=0&shipping=0&handling=0&currency=USD&item_name_1=Blouse&item_amount_1=40.00&item_quantity_1=1&total_amount=40.00&first_name=&address1=&payment_method=cc_card&last_name=&city=&merchantLocale=en_US&phone1=&zip=&email=test@test.com&country=CA&notify_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&success_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&error_url=https://ppp-test.safecharge.com/ppp/defaultCancel.do&pending_url=https://sandbox.safecharge.com/lib/demo_process_request/response.php&time_stamp=2020-08-15%2013:22:23&checksum=d1dd83659f9f85920df4e00c68032be926022044032d49bbe22c6214fc10f391'>
+            src="@checkoutpageUrl">
     </iframe>
     <!--/ End SafeCharge IFrame -->
 </body>

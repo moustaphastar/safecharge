@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@{
+    System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo("en-US", true);
+    //culture.NumberFormat.NumberDecimalSeparator = ",";
+    System.Threading.Thread.CurrentThread.CurrentCulture = culture;
+    System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+}
+
+<!DOCTYPE html>
 <html lang="en-us">
 <head>
     <!-- Meta Tag -->

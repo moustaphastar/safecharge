@@ -90,7 +90,7 @@ namespace UI.Helpers
 
             throw new InvalidOperationException($"'{data}' is not a correct expected value!")
             {
-                Source = "DecimalToStringJsonConverter"
+                Source = "BooleanToStringJsonConverter"
             };
         }
 
@@ -119,11 +119,9 @@ namespace UI.Helpers
             };
         }
 
-
-
         public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)
         {
-            // Write as number or string? Could also use [JsonConverter] to specify a different converter for certain properties.
+            writer.WriteStringValue(value.ToString());
         }
     }
 }
