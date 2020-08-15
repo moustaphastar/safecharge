@@ -1,0 +1,90 @@
+﻿@model UI.SafeChargeModels.PostPaymentResponse
+@{
+    ViewBag.Title = "Success Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 m-sm-auto">
+                <div class="order-details">
+                    <!-- Header Widget -->
+                    <div class="single-widget">
+                        <h2>Payment successfull</h2>
+                        <div class="content">
+                            <ul>
+                                <li>You have successfully completed payment</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--/ End Header Widget -->
+                    <!-- Payment Details Widget -->
+                    <div class="single-widget">
+                        <div class="col-12">
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">transactionId</code>: @Model.TransactionID</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">totalAmount</code>: @Model.TotalAmount</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">currency</code>: @Model.Currency</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">responseTimeStamp</code>: @Model.ResponseTimeStamp</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">PPP_TransactionID</code>: @Model.PPP_TransactionID</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">status</code>: @Model.Status</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">productId</code>: @Model.ProductId</li>
+                                </ul>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    <li><code class="bg-secondary">advanceResponseChecksum</code>: @Model.AdvanceResponseChecksum</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Payment Details Widget -->
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content d-flex" style="justify-content: space-around;">
+                            <div class="button">
+                                <a href="/Home" class="btn btn-default">Return Home</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script>
+        removeObjectFromLocalStorage("cart");
+    </script>
+}

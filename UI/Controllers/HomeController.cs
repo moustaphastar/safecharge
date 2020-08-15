@@ -124,6 +124,27 @@ namespace UI.Controllers
         }
 
         [HttpGet]
+        public ActionResult Success(PostPaymentResponse response)
+        {
+            string strToHash = string.Concat(
+                SECRET, response.TotalAmount, response.Currency, response.ResponseTimeStamp, response.PPP_TransactionID, response.Status, response.ProductId);
+            string checksum = GetChecksumSha256(strToHash);
+
+            if (checksum != response.AdvanceResponseChecksum)
+            {
+                return RedirectToAction("Error");
+            }
+
+            return View(response);
+        }
+
+        [HttpGet]
+        public ActionResult Error()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public ActionResult Dmn()
         {
             // TODO: DMN configuration is not allowed by sandbox currently.

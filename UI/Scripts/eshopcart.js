@@ -20,6 +20,10 @@ function writeObjectToLocalStorage(key, object) {
   }
 }
 
+function removeObjectFromLocalStorage(key) {
+  window.localStorage.removeItem(key);
+}
+
 function initializeCartTotal() {
   var cart = getObjectFromLocalStorage("cart");
   document.getElementById('cartCount').innerHTML = cart === null ? 0 : cart.items.length;
@@ -109,5 +113,3 @@ function navigateToCheckout() {
 
   window.location.href = "/Home/Checkout?amount=" + total.toFixed(2).toString() + "&currency=" + currency  + "&cartItems=" + JSON.stringify(cart);
 };
-
-
