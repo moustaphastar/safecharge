@@ -17,10 +17,9 @@ namespace UI.Controllers
         private const string SECRET = "XlfztkmqgLcGeW3brWNlpwne3u6YyXPpb3IUpLyo2pK7q1SzHWiRoRNCXJRoFaNv";
         private const string MERCHANT_ID = "5305553900704185318";
         private const string MERCHANT_SITE_ID = "205838";
-        private readonly List<string> ALLOWED_CURRENCIES = new List<string>() { "USD", "EUR" };
+        private readonly string[] Currency = new string[] { "USD", "EUR" };
         private const string API_OPEN_ORDER = "https://ppp-test.safecharge.com/ppp/api/v1/openOrder.do";
         private const string API_GET_PAYMENT_STATUS = "https://ppp-test.safecharge.com/ppp/api/v1/getPaymentStatus.do";
-        private const string API_PURCHASE = "https://ppp-test.safecharge.com/ppp/purchase.do?";
         private readonly JsonSerializerOptions JsonSerializerOptions = GetJsonSerializerOptions();
         #endregion
 
@@ -41,14 +40,14 @@ namespace UI.Controllers
         [HttpGet]
         public ActionResult Checkout(string amount, string currency, string cartItems)
         {
-            bool parseAmount = decimal.TryParse(amount, out decimal _amount);
-            //if (parseAmount != true || ALLOWED_CURRENCIES.Contains(currency.ToUpper()))//.Contains(currency.ToUpper()))
-            //{
-            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            //}
+            bool amountIsDecimal = decimal.TryParse(amount, out decimal _amount);
+            if (amountIsDecimal != true || !Array.Exists(Currency, item => item.Equals(currency.ToUpper())))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
 
-            string timeStampForOpenOrderApi = DateTime.UtcNow.ToString("yyyyMMddHHmmss"); // "20200815154546";
-            string timeStampForCheckoutPage = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"); // "2020-08-15 15:45:46";
+            string timeStampForOpenOrderApi = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string timeStampForCheckoutPage = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
             //Prepare model for openOrder() api request.
             OpenOrderResponse openOrderResponse = OpenOrder(amount, currency, timeStampForOpenOrderApi);
@@ -144,17 +143,24 @@ namespace UI.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult Dmn()
-        {
-            // TODO: DMN configuration is not allowed by sandbox currently.
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
-        }
-
-        [HttpPost]
+        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
         public ActionResult Dmn(string advanceResponseChecksum)
         {
-            // TODO: DMN configuration is not allowed by sandbox currently.
+            string totalAmount = Request.QueryString["totalAmount"];
+            string currency = Request.QueryString["currency"];
+            string responseTimeStamp = Request.QueryString["responseTimeStamp"];
+            string PPP_TransactionID = Request.QueryString["PPP_TransactionID"];
+            string Status = Request.QueryString["Status"];
+            string productId = Request.QueryString["productId"];
+
+            string strToHash = string.Concat(SECRET, totalAmount, currency, responseTimeStamp, PPP_TransactionID, Status, productId);
+            string checksum = GetChecksumSha256(strToHash);
+
+            if (checksum != advanceResponseChecksum)
+            {
+                return RedirectToAction("Error");
+            }
+
             return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
         #endregion

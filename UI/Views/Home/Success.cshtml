@@ -4,7 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
 <!-- Start Checkout -->
 <section class="shop checkout section">
     <div class="container">
@@ -25,43 +24,43 @@
                     <div class="single-widget">
                         <div class="col-12">
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">transactionId</code>: @Model.TransactionID</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>transactionId</code>: @Model.TransactionID</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">totalAmount</code>: @Model.TotalAmount</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>totalAmount</code>: @Model.TotalAmount</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">currency</code>: @Model.Currency</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>currency</code>: @Model.Currency</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">responseTimeStamp</code>: @Model.ResponseTimeStamp</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>responseTimeStamp</code>: @Model.ResponseTimeStamp</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">PPP_TransactionID</code>: @Model.PPP_TransactionID</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>PPP_TransactionID</code>: @Model.PPP_TransactionID</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">status</code>: @Model.Status</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>status</code>:<span class="badge badge-success" style="float: none;"> @Model.Status</span></li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">productId</code>: @Model.ProductId</li>
+                                <ul style="margin-top:0 !important">
+                                    <li><code>productId</code>: @Model.ProductId</li>
                                 </ul>
                             </div>
                             <div class="content">
-                                <ul>
-                                    <li><code class="bg-secondary">advanceResponseChecksum</code>: @Model.AdvanceResponseChecksum</li>
+                                <ul style="margin-top:0 !important">
+                                    <li class="text-truncate"><code>advanceResponseChecksum</code>: @Model.AdvanceResponseChecksum</li>
                                 </ul>
                             </div>
                         </div>
