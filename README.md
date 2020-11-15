@@ -12,6 +12,5 @@ Branch | Safecharge Flow
 There are 4 integration examples:
 1) **Web SDK** : Starting a payment order session at safecharge via backend request then completes payment process using safecharge's web sdk at client side. For official documentation refer to : https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/
 2) **Checkout page** : Processes payments using safecherge's checkout page.
-3) **Server to server** : 
-4) **Api only** : Processes payments using safecherge's rest api, including a 3DS example.
-Online payment processing integration for Web SDK of provider.
+3) **Server to server** : An example using server to server flow.
+4) **Api only** : An example using safecherge's rest api, including a successfull 3D Secure v2 transaction example.
