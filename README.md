@@ -7,7 +7,7 @@ Branch | Safecharge Flow
 [websdk](https://github.com/moustaphastar/safecharge/tree/websdk) | [Web SDK](https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/)
 [checkoutpage](https://github.com/moustaphastar/safecharge/tree/checkoutpage) | [Checkout page](https://docs.safecharge.com/documentation/accept-payment/checkout-page/quick-start/)
 [servertoserver](https://github.com/moustaphastar/safecharge/tree/servertoserver) | [Server-to-server](https://docs.safecharge.com/documentation/accept-payment/server-to-server/)
-[apionly](https://github.com/moustaphastar/safecharge/tree/apionly) | [Api only](https://docs.safecharge.com/documentation/accept-payment/server-to-server/server-side-only-integration/)
+[apionly](https://github.com/moustaphastar/safecharge/tree/apionly) | [Api only](https://docs.safecharge.com/documentation/accept-payment/server-to-server/api-only-integration/)
 
 There are 4 integration examples:
 1) **Web SDK** : Starting a payment order session at safecharge via backend request then completes payment process using safecharge's web sdk at client side. For official documentation refer to : https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/
