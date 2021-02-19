@@ -1,0 +1,82 @@
+﻿@model Safecharge.Response.OpenOrderResponse
+@{
+    ViewData["Title"] = "Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .btn-update-cart {
+        width: 10px;
+        background-color: red;
+        margin: .25rem !important;
+    }
+
+    .vertical-align-none td {
+        vertical-align: middle !important;
+    }
+
+    .cart-table-footer td {
+        text-align: right !important;
+        font-weight: bold !important;
+    }
+</style>
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 m-sm-auto">
+                <div class="order-details">
+                    <!-- Order Widget -->
+                    <div class="single-widget">
+                        <h2>Cart Details</h2>
+                        <div class="content m-1">
+                            <table class="table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col" class="text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody"></tbody>
+                                <tfoot id="tfoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Button Widget -->
+                    <div class="single-widget">
+                      <div class="content d-flex" style="justify-content: space-around;">
+                        <div class="button m-1">
+                          <button id="checkoutButton2" onclick="navigateToCheckoutNon3D();" class="btn btn-primary">Checkout Non-3d</button>
+                        </div>
+                        <div class="button m-1">
+                          <button id="checkoutButton" onclick="navigateToCheckoutMpiOnly();" class="btn btn-primary">Checkout MPI Only</button>
+                        </div>
+                        <div class="button m-1">
+                          <button id="checkoutButton3" onclick="navigateToCheckoutS2S();" class="btn btn-primary">Checkout S2S</button>
+                        </div>
+                        <div class="button m-1">
+                          <button id="checkoutButton3" onclick="navigateToCheckoutZAuth();" class="btn btn-primary">Auth - Rebill</button>
+                        </div>
+                        <div class="button m-1">
+                          <button id="checkoutButton3" onclick="navigateToCheckoutAuthSettle();" class="btn btn-primary">Auth - Settle</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script>
+        populateCartTable();
+    </script>
+}

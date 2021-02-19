@@ -1,0 +1,129 @@
+﻿@model Safecharge.Response.GetSessionTokenResponse
+@{
+    ViewBag.Title = "Checkout Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 m-sm-auto">
+                <div class="order-details">
+                    <!-- Order Widget -->
+                    <div class="single-widget">
+                        <h2>Checkout Details</h2>
+                        <div class="content">
+                            <ul>
+                                <li>Amount to pay<span id="checkoutTotal">$@String.Format("{0:c}", ViewBag.AuthorizedAmount)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--/ End Order Widget -->
+                    <!-- Payment Method Widget -->
+                    <div class="single-widget">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <select class="form-control form-control-sm" id="cardSelect" onchange="cardSelected()">
+                                    <option label="Non-3DS Approved Card [4000023104662535]">4000023104662535</option>
+                                    <option label="Non-3DS Declined Card [4008370896662369]">4008370896662369</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" id="cardNumber" />
+                            </div>
+                            <div class="form-group">
+                                <label for="cardHolderName">Card Holder Name</label>
+                                <input type="text" id="cardHolderName" class="col-12" placeholder="FL-BRW1" value="FL-BRW1" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expMonth">Expiry Month</label>
+                                <input type="text" id="expMonth" class="col-12" placeholder="12" value="12" />
+                            </div>
+                            <div class="form-group">
+                                <label for="expYear">Expiry Year</label>
+                                <input type="text" id="expYear" class="col-12" placeholder="25" value="25" />
+                            </div>
+                            <div class="form-group">
+                                <label for="CVV">CVV</label>
+                                <input type="text" id="CVV" class="col-12" placeholder="217" value="217" />
+                            </div>
+                            <input type="hidden" id="methodUrl" value="" />
+                        </div>
+                    </div>
+                    <!--/ End Payment Method Widget -->
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content">
+                            <div class="button">
+                                <button id="payoutButton" onclick="main();" class="btn btn-primary">Submit Payment</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+                <div class="col-6 m-sm-auto">
+                    <div id="textarea"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script>
+        function main() {
+            var cardholderName = document.getElementById('cardHolderName').value;
+            var cardNumber = document.getElementById('cardSelect').value;
+            var expMonth = document.getElementById('expMonth').value;
+            var expYear = document.getElementById('expYear').value;
+            var CVV = document.getElementById('CVV').value;
+            var amount = "@String.Format("{0:c}", ViewBag.AuthorizedAmount)";
+            var currency = "@ViewBag.Currency";
+            var timestamp = "@ViewBag.TimeStmap";
+            var checksum = "@ViewBag.Checksum"
+            var checksumForPayment = "@ViewBag.ChecksumForPayment"
+            var methodUrl = document.getElementById("methodUrl").value;
+
+            var paymentRequestNon3D = {
+                "sessionToken": "@Model.SessionToken",
+                "currency": currency,
+                "amount": amount,
+                "billingAddress": {
+                    "country": "GB",
+                    "email": "john.smith@safecharge.com"
+                },
+                "paymentOption": {
+                    "card": {
+                        "cardNumber": cardNumber,
+                        "cardHolderName": cardholderName,
+                        "expirationMonth": expMonth,
+                        "expirationYear": expYear,
+                        "CVV": "122",
+                        "threeD": {
+                            "dynamic3DMode": "OFF"
+                        }
+                    }
+                },
+                "deviceDetails": {
+                    "ipAddress": "10.0.0.193"
+                },
+            };
+
+            $.ajax({
+                method: "POST",
+                url: "https://localhost:44356/api/threeD/PaymentSTS3D1",
+                data: JSON.stringify(paymentRequestNon3D),
+                contentType: "application/json",
+                success: function (paymentResponse) {
+                    console.log(paymentResponse);
+                    alert("NON 3D PAYMENT OK!");
+                }
+            });
+        }
+    </script>
+}
+

@@ -1,0 +1,25 @@
+﻿@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <script>
+        botherParent = function () {
+            parent.getText(document.getElementById("textInput").value);
+        };
+        window.onload = function () {
+        }
+    </script>
+</head>
+<body>
+    <form id="fingerprintform" name="frm" method="POST" action="https://3dsn.sandbox.safecharge.com/ThreeDSMethod/api/ThreeDSMethod/threeDSMethodURL">
+        <input type="hidden" id="fingerprintinput" name="threeDSMethodData" value="@Model.PaymentOption.Card.ThreeD.MethodPayload">
+    </form>
+    <input type="text" id="textInput" />
+    <span onclick="botherParent()">Stuff goes here</span>
+    <script>
+
+    </script>
+</body>
+</html>

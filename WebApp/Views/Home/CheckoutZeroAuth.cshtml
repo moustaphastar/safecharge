@@ -1,0 +1,370 @@
+﻿@model Safecharge.Response.OpenOrderResponse
+@{
+  ViewBag.Title = "Checkout Page";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+  <div class="container">
+    <div class="row">
+      <div class="col-6 m-sm-auto">
+        <div class="order-details">
+          <!-- Order Widget -->
+          <div class="single-widget">
+            <h2>Checkout Details</h2>
+            <div class="content">
+              <ul>
+                <li>Amount to pay<span id="checkoutTotal">$@String.Format("{0:c}", ViewBag.AuthorizedAmount)</span></li>
+              </ul>
+            </div>
+          </div>
+          <!--/ End Order Widget -->
+          <!-- Payment Method Widget -->
+          <div class="single-widget">
+            <div class="col-12">
+              <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <select class="form-control form-control-sm" id="cardSelect" onchange="cardSelected()">
+                  <option label="3DS v2 Frictionless Flow Test Card [4000020951595032]" selected="selected">4000020951595032</option>
+                  <option label="3DS v2 Challenge Flow Test Card [2221008123677736]">2221008123677736</option>
+                  <option label="3DS v1 Flow Card Fallback [4407106439671112]">4407106439671112</option>
+                  <option label="Non-3DS Approved Card [4000023104662535]">4000023104662535</option>
+                  <option label="Non-3DS Declined Card [4008370896662369]">4008370896662369</option>
+                  <option label="Simple Auth Card [2221008123677736]">2221008123677736</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <input type="hidden" id="cardNumber" />
+              </div>
+              <div class="form-group">
+                <label for="cardHolderName">Card Holder Name</label>
+                <input type="text" id="cardHolderName" class="col-12" placeholder="FL-BRW1" value="FL-BRW1" />
+              </div>
+              <div class="form-group">
+                <label for="expMonth">Expiry Month</label>
+                <input type="text" id="expMonth" class="col-12" placeholder="12" value="12" />
+              </div>
+              <div class="form-group">
+                <label for="expYear">Expiry Year</label>
+                <input type="text" id="expYear" class="col-12" placeholder="25" value="25" />
+              </div>
+              <div class="form-group">
+                <label for="CVV">CVV</label>
+                <input type="text" id="CVV" class="col-12" placeholder="217" value="217" />
+              </div>
+              <input type="hidden" id="methodUrl" value="" />
+            </div>
+          </div>
+          <!--/ End Payment Method Widget -->
+          <!-- Button Widget -->
+          <div class="single-widget get-button">
+            <div class="content">
+              <div class="button">
+                <button id="payoutButton" onclick="main();" class="btn btn-primary">Submit Payment</button>
+              </div>
+            </div>
+          </div>
+          <!--/ End Button Widget -->
+        </div>
+        <div class="col-6 m-sm-auto">
+          <div id="textarea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--/ End Checkout -->
+<!-- Fingerprinting-->
+<form id="fingerprintform" name="frm" method="POST" action="">
+  <input type="hidden" id="fingerprintinput" name="threeDSMethodData" value="">
+</form>
+<!-- when the form is submitted, the server response will appear in this iframe -->
+<div id="iframe" style="width:0px; height:0px; visibility:hidden">
+  <input type="hidden" id="methodCompletionInd" value="U" />
+</div>
+
+<form id="ChallengeFormv2" method="POST" action="" target="ChallengeWindowv2">
+
+  <input type="hidden" id="creq" name="creq" value="" />;
+
+  <input type="submit" value="proceed to issuer">
+</form>
+
+<form id="threeD" name="threeD" method="POST" action="" target="ChallengeWindowv1">
+  <input type="hidden" id="PaReq" name="PaReq" value="">
+  <input type="hidden" id="TermUrl" name="TermUrl" value="">
+  <input type="hidden" id="MD" name="MD" value="">
+  <input type="submit" id="proceed" value="proceed to issuer">
+</form>
+
+<!--/ End Fingerprinting -->
+
+@section Scripts{
+  <script src="https://cdn.safecharge.com/safecharge_resources/v1/websdk/safecharge.js"></script>
+  <script>
+    function main() {
+      var cardholderName = document.getElementById('cardHolderName').value;
+      var cardNumber = document.getElementById('cardSelect').value;
+      var expMonth = document.getElementById('expMonth').value;
+      var expYear = document.getElementById('expYear').value;
+      var CVV = document.getElementById('CVV').value;
+      var amount = "@String.Format("{0:c}", ViewBag.AuthorizedAmount)";
+      var _amount = Number.parseFloat(amount);
+      var currency = "@ViewBag.Currency";
+      var timestamp = "@ViewBag.TimeStmap";
+      var checksum = "@ViewBag.Checksum"
+      var checksumForPayment = "@ViewBag.ChecksumForPayment"
+      var methodUrl = document.getElementById("methodUrl").value;
+      var methodCompletionInd = document.getElementById("methodCompletionInd").value;
+
+      var zeroPaymentRequest =
+      {
+        "sessionToken": "@Model.SessionToken",
+        "amount": "0",
+        "currency": currency,
+        "orderId": "34383481",
+        "transactionType": "Auth",
+        "userTokenId": "@Model.UserTokenId",
+        "isRebilling": "0",
+        //"userPaymentOptionId": "ZeroUser2",
+        "paymentOption": {
+          "card": {
+            "cardNumber": cardNumber,
+            "cardHolderName": cardholderName,
+            "expirationMonth": expMonth,
+            "expirationYear": expYear,
+            "CVV": CVV,
+            "threeD": {
+              "methodNotificationUrl": methodUrl
+            }
+          }
+        },
+        "deviceDetails": {
+          "ipAddress": "93.146.254.172"
+        },
+        "billingAddress": {
+          "country": "GB",
+          "email": "john.smith@safecharge.com",
+        }
+      };
+
+      $.ajax({
+        method: "POST",
+        url: "https://localhost:44356/api/threeD/paymentsts3d1",
+        data: JSON.stringify(zeroPaymentRequest),
+        contentType: "application/json",
+        success: function (zeroPaymentResponse) {
+          console.log("Step-1,2: 0 Auth => 0 payment response.");
+          console.log(zeroPaymentResponse);
+          alert("ZERO AUTH AND ZERO PAYMENT OK!");
+
+          // We are going to start over by getting session token.
+          console.log("Step-3: Get session token.");
+          $.ajax({
+            method: "POST",
+            url: "https://localhost:44356/api/threeD/getSessionToken",
+            contentType: "application/json",
+            success: function (sessionTokenResponse) {
+              console.log("Step-3: Session token.");
+              console.log(sessionTokenResponse);
+
+              var initPaymentRequest =
+              {
+                "sessionToken": sessionTokenResponse.sessionToken,
+                "amount": amount,
+                "currency": currency,
+                "userTokenId": "@Model.UserTokenId",
+                "paymentOption": {
+                  "card": {
+                    "cardNumber": cardNumber,
+                    "cardHolderName": cardholderName,
+                    "expirationMonth": expMonth,
+                    "expirationYear": expYear,
+                    "CVV": CVV,
+                    "threeD": {
+                      "methodNotificationUrl": methodUrl
+                    }
+                  }
+                },
+                "billingAddress": {
+                  "country": "GB",
+                  "email": "john.smith@safecharge.com",
+                }
+              };
+
+              console.log("Step-4: Init payment");
+              console.log("Step-4: Init payment client request to merchant server");
+              console.log(initPaymentRequest);
+
+              $.ajax({
+                method: "POST",
+                url: "https://localhost:44356/api/threeD/initpayment",
+                data: JSON.stringify(initPaymentRequest),
+                contentType: "application/json",
+                success: function (initPaymentResponse) {
+                  console.log("Step-4: Init payment merchant server response");
+                  console.log(initPaymentResponse);
+                  alert("PAYMENT INIT OK!");
+
+                  console.log("Step-5: First payment.");
+                  // It is time to send the first paymet. Setting isRebilling
+                  var firstPaymentAmount = Number.parseFloat((_amount / 3) * 1);
+                  var paymentRequest1 = {
+                    "sessionToken": sessionTokenResponse.sessionToken,
+                    "merchantId": "@Model.MerchantId",
+                    "merchantSiteId": "@Model.MerchantSiteId",
+                    "clientRequestId": "@Model.ClientRequestId",
+                    "currency": currency,
+                    "amount": firstPaymentAmount.toFixed(2),
+                    "relatedTransactionId": initPaymentResponse.transactionId,
+                    "isRebilling": "0",
+                    "rebillingType": "RECURRING",
+                    "userTokenId": "@Model.UserTokenId",
+                    "paymentOption": {
+                      "card": {
+                        "cardNumber": cardNumber,
+                        "cardHolderName": cardholderName,
+                        "expirationMonth": expMonth,
+                        "expirationYear": expYear,
+                        "CVV": CVV,
+                        "threeD": {
+                          "methodCompletionInd": methodCompletionInd,
+                          "version": initPaymentResponse.paymentOption.card.threeD.version,
+                          "notificationURL": "https://3dsn.sandbox.safecharge.com/ThreeDSMethod/api/ThreeDSMethod/threeDSMethodURL",
+                          "merchantURL": "http://www.The-Merchant-Website-Fully-Quallified-URL.com",
+                          "platformType": "02",
+                          "v2AdditionalParams": {
+                            "rebillExpiry": "20210230",
+                            "rebillFrequency": "13"
+                          },
+                          "browserDetails": {
+                            "acceptHeader": "text/html,application/xhtml+xml",
+                            "ip": "192.168.1.11",
+                            "javaEnabled": "TRUE",
+                            "javaScriptEnabled": "TRUE",
+                            "language": "EN",
+                            "colorDepth": "48",
+                            "screenHeight": "400",
+                            "screenWidth": "600",
+                            "timeZone": "0",
+                            "userAgent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47"
+                          }
+                        }
+                      }
+                    },
+                    "deviceDetails": {
+                      "ipAddress": "10.0.0.193"
+                    },
+                    "billingAddress": {
+                      "country": initPaymentRequest.billingAddress.country,
+                      "email": initPaymentRequest.billingAddress.email
+                    },
+                    "shippingAddress": {
+                      "country": initPaymentRequest.billingAddress.country,
+                      "email": initPaymentRequest.billingAddress.email
+                    },
+                  };
+                  console.log("Step-5: First payment client request to merchant server.");
+                  console.log(paymentRequest1);
+
+                  $.ajax({
+                    method: "POST",
+                    url: "https://localhost:44356/api/threeD/PaymentSTS3D1",
+                    data: JSON.stringify(paymentRequest1),
+                    contentType: "application/json",
+                    success: function (response1) {
+                      console.log("Step-5: First payment merchant response.");
+                      console.log(response1);
+
+                      // Check if APPROVED.
+                      if (response1.transactionStatus === "APPROVED") {
+                        $.ajax({
+                          method: "POST",
+                          url: "https://localhost:44356/api/threeD/getsessiontoken",
+                          contentType: "application/json",
+                          success: function (secondSessionTokenResponse) {
+                            console.log("Step-6: Second session token.");
+                            console.log(secondSessionTokenResponse);
+
+                            console.log("Step-7: Second payment.");
+                            var secondPaymentAmount = Number.parseFloat((_amount - firstPaymentAmount) * 1);
+
+                            var paymentRequest2 = {
+                              "sessionToken": sessionTokenResponse.sessionToken,
+                              "merchantId": "@Model.MerchantId",
+                              "merchantSiteId": "@Model.MerchantSiteId",
+                              "clientRequestId": "@Model.ClientRequestId",
+                              "currency": currency,
+                              "amount": secondPaymentAmount.toFixed(2),
+                              "relatedTransactionId": response1.transactionId,
+                              "isRebilling": "1",
+                              //"userTokenId": "@Model.UserTokenId",
+                              "paymentOption": {
+                                "userPaymentOptioId": response1.paymentOption.userPaymentOptionId,
+                                //"card": {
+                                //  "cardNumber": cardNumber,
+                                //  "cardHolderName": cardholderName,
+                                //  "expirationMonth": expMonth,
+                                //  "expirationYear": expYear,
+                                //  "CVV": CVV
+                                //}
+                              },
+                              "deviceDetails": {
+                                "ipAddress": "10.0.0.193"
+                              },
+                              "billingAddress": {
+                                "firstName": "John",
+                                "lastName": "Smith",
+                                "city": "London",
+                                "country": initPaymentRequest.billingAddress.country,
+                                "email": initPaymentRequest.billingAddress.email
+                              },
+                              "shippingAddress": {
+                                "firstName": "John",
+                                "lastName": "Smith",
+                                "city": "London",
+                                "country": initPaymentRequest.billingAddress.country,
+                                "email": initPaymentRequest.billingAddress.email
+                              },
+                            };
+                            console.log("Step-7: Second payment request to merchant server.");
+                            console.log(paymentRequest2);
+                            $.ajax({
+                              method: "POST",
+                              url: "https://localhost:44356/api/threeD/PaymentSTS3D2",
+                              data: JSON.stringify(paymentRequest2),
+                              contentType: "application/json",
+                              success: function (paymentResponse2) {
+                                console.log("Step-7: Second payment merchant response.");
+                                console.log(paymentResponse2);
+                                alert("REBILLING/RECURRING SUCCESSFULLY COMPLETED WITH APPROVED!");
+                              },
+                            });
+                          }
+                        });
+                      }
+                      else if (response1.transactionStatus === "REDIRECT") {
+                        // Redirect to success page.
+                        alert("REBILLING/RECURRING REDIRECTED!");
+                      }
+                      else {
+                        // Redirect to Error page.
+                        alert("ERROR!");
+                      }
+                    }
+                  });
+                }
+              });
+            },
+            error: function () {
+              console.log("Could not get session token!");
+              alert("Could not get session token!");
+            }
+          });
+        }
+      });
+    }
+  </script>
+}
+

@@ -1,0 +1,78 @@
+﻿@model Safecharge.Response.Payment.PaymentResponse
+@{
+    ViewData["Title"] = "Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .btn-update-cart {
+        width: 10px;
+        background-color: red;
+        margin: .25rem !important;
+    }
+
+    .vertical-align-none td {
+        vertical-align: middle !important;
+    }
+
+    .cart-table-footer td {
+        text-align: right !important;
+        font-weight: bold !important;
+    }
+</style>
+
+<!-- Start Checkout -->
+<section class="shop checkout section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 m-sm-auto">
+                <div class="order-details">
+                    <!-- Order Widget -->
+                    <div class="single-widget">
+                        <h2>Cart Details</h2>
+                        <div class="content">
+                            <table class="table vertical-align-none">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">SessionToken</th>
+                                        <th scope="col">TransactionStatus</th>
+                                        <th scope="col">TransactionId</th>
+                                        <th scope="col" class="text-right">TransactionType</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    <tr>
+                                        <th scope="col">@Model.Status</th>
+                                        <th scope="col">@Model.SessionToken</th>
+                                        <th scope="col">@Model.TransactionStatus</th>
+                                        <th scope="col">@Model.TransactionId</th>
+                                        <th scope="col" class="text-right">@Model.TransactionType</th>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="tfoot"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content d-flex" style="justify-content: space-around;">
+                            <div class="button">
+                                <button id="checkoutButton" onclick="navigateToCheckout();" class="btn btn-default">Checkout</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--/ End Checkout -->
+
+@section Scripts{
+    <script>
+        populateCartTable();
+    </script>
+}

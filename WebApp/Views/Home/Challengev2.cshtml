@@ -1,0 +1,17 @@
+﻿@model Safecharge.Response.Payment.PaymentResponse
+@{
+    Layout = null;
+}
+<html>
+<head>
+
+</head>
+<body>
+    <form method="POST" action="@Model.PaymentOption.Card.ThreeD.AcsUrl">
+
+        creq:<input type="area" id="creq" name="creq" value='@Model.PaymentOption.Card.ThreeD.CReq' />;
+
+        <input type="submit" value="proceed to issuer">
+    </form>
+</body>
+</html>
