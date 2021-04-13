@@ -1,3 +1,5 @@
+![Build Status](https://github.com/moustaphastar/safecharge/actions/workflows/dotnet.yml/badge.svg)
+
 This is a project for testing nuvei's (former safecharge) payment gateway api and implemented during a test cycle on uTest. The api might have been changed since then, so please refer to nuvei's [official documentation](https://docs.safecharge.com/documentation/payment-overview/intro/) and [api reference](https://www.safecharge.com/docs/API/main/indexMain_v1_0.html?json#).
 
 # Safecharge Integrations
