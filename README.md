@@ -4,15 +4,23 @@ This is a project for testing nuvei's (former safecharge) payment gateway api an
 
 # Safecharge Integrations
 Integration examples 
-Branch | Safecharge Flow
+Repository Branch | Implemented Safecharge Solution
 ------------ | -------------
-[websdk](https://github.com/moustaphastar/safecharge/tree/websdk) | [Web SDK](https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/)
 [checkoutpage](https://github.com/moustaphastar/safecharge/tree/checkoutpage) | [Checkout page](https://docs.safecharge.com/documentation/accept-payment/checkout-page/quick-start/)
+[websdk](https://github.com/moustaphastar/safecharge/tree/websdk) | [Web SDK](https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/)
 [servertoserver](https://github.com/moustaphastar/safecharge/tree/servertoserver) | [Server-to-server](https://docs.safecharge.com/documentation/accept-payment/server-to-server/)
-[apionly](https://github.com/moustaphastar/safecharge/tree/apionly) | [Api only](https://docs.safecharge.com/documentation/accept-payment/server-to-server/api-only-integration/)
 
-There are 4 integration examples:
-1) **Web SDK** : Starting a payment order session at safecharge via backend request then completes payment process using safecharge's web sdk at client side. For official documentation refer to : https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/
-2) **Checkout page** : Processes payments using safecherge's checkout page.
+Safecharge offers 3 integration solutions:
+1) **Checkout page** : Processes payments using safecherge's own checkout page. 
+2) **Web SDK** : Starting a payment order session at safecharge via backend request then completes payment process using safecharge's web sdk at client side. For official documentation refer to : https://docs.safecharge.com/documentation/accept-payment/web-sdk/quick-start/
 3) **Server to server** : An example using server to server flow.
-4) **Api only** : An example using safecherge's rest api, including a successfull 3D Secure v2 transaction example.
+
+[Comparison of solutions](https://docs.safecharge.com/documentation/payment-overview/intro/#nuvei-integration-solutions-compared)
+
+# Requirements
+Net Framework 4.7.2
+
+# Installing & running
+1. `git clone https://github.com/moustaphastar/safecharge.git`
+2. `dotnet restore`
+3. `dotnet run SafeCharge.sln`
