@@ -27,18 +27,10 @@ Safecharge offers 3 integration solutions:
 3. Update web.config file with the credentials from sandbox account:
 ```xml
 <!-- Application wide Safecharge credentials and api endpoints -->
-    <add key="safeChargeMerchantSecretKey" value="MERCHANT_SECRET_KEY_FROM_SANDBOX_ACCOUNT"/>
-    <add key="safeChargeMERCHANT_ID" value="MERCHANT_ID_FROM_SANDBOX_ACCOUNT"/>
-    <add key="safeChargeMERCHANT_SITE_ID" value="MERCHANT_SITE_ID_FROM_SANDBOX_ACCOUNT"/>
-    <add key="safeChargeAPI_OPEN_ORDER" value="https://ppp-test.safecharge.com/ppp/api/v1/openOrder.do"/>
-    <add key="safeChargeAPI_PURCHASE" value="https://ppp-test.safecharge.com/ppp/purchase.do"/>
-    <add key="safeChargeAPI_GET_PAYMENT_STATUS" value="https://ppp-test.safecharge.com/ppp/api/v1/getPaymentStatus.do"/>
-    <add key="safeChargeURL_NOTIFY" value="https://sandbox.safecharge.com/lib/demo_process_request/response.php"/>
-    <add key="safeChargeURL_SUCCESS" value="https://localhost:44384/Home/Success"/>
-    <add key="safeChargeURL_ERROR" value="https://localhost:44384/Home/Error"/>
-    <add key="safeChargeURL_PENDING" value="https://sandbox.safecharge.com/lib/demo_process_request/response.php"/>
-    <add key="safeChargeURL_BACK" value="https://localhost:44384/Home/Cart"/>
+  <add key="safeChargeMerchantSecretKey" value="MERCHANT_SECRET_KEY_FROM_SANDBOX_ACCOUNT"/>
+  <add key="safeChargeMERCHANT_ID" value="MERCHANT_ID_FROM_SANDBOX_ACCOUNT"/>
+  <add key="safeChargeMERCHANT_SITE_ID" value="MERCHANT_SITE_ID_FROM_SANDBOX_ACCOUNT"/>
 
-    <!-- Application wide Safecharge credentials and endpoints -->
+<!-- Application wide Safecharge credentials and endpoints -->
 ```
 4. `dotnet run SafeCharge.sln`
